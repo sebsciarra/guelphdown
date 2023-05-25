@@ -1,0 +1,4 @@
+name: guelphdown
+description: >
+   Generating theses according to University of Guelph formatting requirements.
+create_dir: FALSE

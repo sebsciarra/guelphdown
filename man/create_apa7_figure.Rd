@@ -23,7 +23,7 @@ create_apa7_figure(
 \item{figure_bottom_margin}{Spacing between bottom of figure and footnote. Values can be specified in any type of LaTeX units,
 though centimeters (cm) are used by default.}
 
-\item{figure_tag}{Tag used so that figure can be referenced using LaTex code (e.g., Figure \ref{fig:example-figure}).}
+\item{figure_tag}{Tag used so that figure can be referenced using LaTex code}
 
 \item{image_ratio}{Ratio size of image.}
 

@@ -4,7 +4,7 @@
 #' @param samepage Whether to print figure on samepage or newpage.Value should be either 'samepage', or 'newpage'.
 #' @param figure_bottom_margin Spacing between bottom of figure and footnote. Values can be specified in any type of LaTeX units,
 #'  though centimeters (cm) are used by default.
-#' @param figure_tag Tag used so that figure can be referenced using LaTex code (e.g., Figure \ref{fig:example-figure}).
+#' @param figure_tag Tag used so that figure can be referenced using LaTex code
 #' @param image_ratio Ratio size of image.
 #' @param figure_path path to figure
 #' @param footnote footnote

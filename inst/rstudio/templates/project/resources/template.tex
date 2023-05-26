@@ -1,0 +1,739 @@
+% This is the University of GUelph LaTeX thesis template.
+% Your comments and suggestions are more than welcome; please email
+% them to seb@sciarra.io
+%
+% See https://www.reed.edu/cis/help/LaTeX/index.html for help. There are a
+% great bunch of help pages there, with notes on
+% getting started, bibtex, etc. Go there and read it if you're not
+% already familiar with LaTeX.
+%
+% Any line that starts with a percent symbol is a comment.
+% They won't show up in the document, and are useful for notes
+% to yourself and explaining commands.
+% Commenting also removes a line from the document;
+% very handy for troubleshooting problems. -BTS
+
+%%
+%% Preamble
+\documentclass[
+$fontsize$, % The default document font size, options: 10pt, 11pt, 12pt
+twoside,
+english]{guelphthesis}
+
+%----------------------------------------------------------------------------------------
+% PACKAGES
+%----------------------------------------------------------------------------------------
+
+\usepackage{tocloft} %needed for table of contents, list of figures, list of tables, list of appendices
+\usepackage{graphicx,latexsym}
+\usepackage{amsmath}
+\usepackage{amssymb,amsthm}
+
+\usepackage{longtable,booktabs,setspace}
+\usepackage{lmodern}
+\usepackage{float}
+\usepackage{etoolbox}
+\floatplacement{figure}{H}
+% Thanks, @Xyv
+\usepackage{calc}
+% End of CII addition
+\usepackage{rotating}
+\usepackage{tocbibind} %includes list of figures, list of tables, and table of contents in table of contents
+\usepackage{indentfirst} %needed so that first paragraph after each section titles has indent
+\usepackage{lineno} %allows option for line numbering
+\usepackage{draftwatermark} %for draft watermark
+\SetWatermarkText{} %ensures draft is not printed when draft:false
+
+
+% Syntax highlighting
+$if(highlighting-macros)$
+  $highlighting-macros$
+$endif$
+
+
+% To pass between YAML and LaTeX the dollar signs are added by CII
+\title{$title$}
+\author{$author$}
+\year{$year$}
+\date{$date$}
+\advisor{$advisor$}
+\institution{$institution$}
+\degree{$degree$}
+
+$if(altadvisor)$
+\altadvisor{$altadvisor$}
+$endif$
+
+$if(specialization)$
+\specialization{$specialization$}
+$endif$
+
+$if(field)$
+\field{$field$}
+$endif$
+
+\department{$department$}
+
+$if(print)$
+$else$
+  \let\cleardoublepage\clearpage
+$endif$
+
+
+\urlstyle{rm}
+$if(ArialFont)$
+  \urlstyle{sf}
+$endif$
+
+%----------------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%----------------------------------------------------------------------------------------
+%numbers lines before equations
+%taken from https://tex.stackexchange.com/questions/43648/why-doesnt-lineno-number-a-paragraph-when-it-is-followed-by-an-align-equation
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+  \renewenvironment{#1}%
+     {\linenomath\csname old#1\endcsname}%
+     {\csname oldend#1\endcsname\endlinenomath}}%
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+  \patchAmsMathEnvironmentForLineno{#1}%
+  \patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+\patchBothAmsMathEnvironmentsForLineno{equation}%
+\patchBothAmsMathEnvironmentsForLineno{align}%
+\patchBothAmsMathEnvironmentsForLineno{flalign}%
+\patchBothAmsMathEnvironmentsForLineno{alignat}%
+\patchBothAmsMathEnvironmentsForLineno{gather}%
+\patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+
+
+%nest all the \frontmatter functions in \oldfrontmatter, which allows us to redefine \frontmatter as everything it was with one modification to the
+%draft watermark
+\let\oldfrontmatter\frontmatter
+%set page numbering to bottom center for \frontmatter
+\fancypagestyle{frontmatter}{%
+ \fancyhf{}% clear all header and footer fields
+  \renewcommand{\headrulewidth}{0pt}
+  \fancyhead[R]{\roman{page}}% Roman page number in footer centre
+
+  $if(ArialFont)$
+   \fancyhead[R]{\sffamily\roman{page}}
+  $endif$
+}
+
+\renewcommand{\frontmatter}{
+  \oldfrontmatter
+  $if(draft)$
+   \SetWatermarkLightness{0.8} %shading of draft watermark
+  \SetWatermarkText{DRAFT}
+  $endif$
+
+   %set page number font to Arial if ArialFont: false in YAML header
+  $if(ArialFont)$
+   \fontfamily{\sfdefault}
+  $endif$
+
+   \pagestyle{frontmatter} % add this to center page numbers
+}
+
+%set page numbering to bottom center for \mainmatter
+\fancypagestyle{mainmatter}{%
+ \fancyhf{}% clear all header and footer fields
+  \renewcommand{\headrulewidth}{0pt}
+  \fancyfoot[C]{\arabic{page}}% Roman page number in footer centre
+
+   \hypersetup{pdfpagemode={UseOutlines},
+    bookmarksopen=true,
+    hypertexnames=true,
+    colorlinks = true,
+    allcolors = $linkcolor$,
+    %linkcolor = $linkcolor$,
+    %urlcolor= $linkcolor$,
+    %anchorcolor = $linkcolor$,
+    pdfstartview={FitV},
+    breaklinks=true,
+    hyperindex = true,
+    backref=page}
+
+  \cleardoublepage
+
+  $if(ArialFont)$
+   \fancyfoot[C]{\sffamily\thepage}
+  $endif$
+}
+
+%nest all the \mainmatter functions in \oldmainmatter, which allows us to redefine \mainmatter as everything it was with one modification to the
+%page numbering format
+\newcommand{\setMainMatterLinespacing}{
+ \setstretch{2} %default line spacing
+
+  %change line spacing if specified in YAML header
+   $if(linespacing)$
+     \setstretch{$linespacing$}
+  $endif$
+}
+
+\let\oldmainmatter\mainmatter
+\renewcommand{\mainmatter}{
+  \oldmainmatter
+
+  %change line spacing if specified in YAML header
+  \setMainMatterLinespacing
+
+  $if(linenumbers)$
+    \linenumbers
+  $endif$
+
+  \pagestyle{mainmatter} % add this to center page numbers
+
+}
+
+%code below is important for linespacing to remain unaffected when kableExtra::landscape() is used andthe margin is specifically defined. Otherwise,
+%linespacing for entire document goes to singlespacing for the text that follows the table.
+\let\oldRestoreGeometry\restoregeometry
+\renewcommand{\restoregeometry}{
+  \oldRestoreGeometry
+
+  %change line spacing if specified in YAML header
+  \setMainMatterLinespacing
+}
+
+%change footnote and page number font to arial if desired
+$if(ArialFont)$
+ \renewcommand{\footnotesize}{\fontsize{10pt}{10pt}\fontfamily{\sfdefault}\selectfont}%footnotesize
+$endif$
+
+
+
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS, LIST OF FIGURES, & LIST OF TABLES
+%----------------------------------------------------------------------------------------
+%TABLE OF CONTENTS
+\setlength{\cftbeforetoctitleskip}{0cm} %remove vertical space above table of contents
+
+%two lines below ensure centered title for toc
+%needed so that table of contents entry is not indented
+\renewcommand{\contentsname}{Table of Contents} %change title for toc
+\renewcommand{\cfttoctitlefont}{\hfill\fontsize{14}{14}\selectfont\bfseries\MakeUppercase}
+\renewcommand{\cftaftertoctitle}{\hfill\hfill} %sometimes another \hfill is needed; depends on some setting in abovce code
+
+%fonts for all entry level titles
+\renewcommand\cftchapfont{\mdseries} %eliminate bolded chapter titles in toc
+\renewcommand\cftsecfont{\mdseries} %eliminate bolded chapter titles in toc
+\renewcommand\cftsubsecfont{\mdseries} %eliminate bolded chapter titles in toc
+\renewcommand\cftsubsubsecfont{\mdseries} %eliminate bolded chapter titles in toc
+\renewcommand\cftparafont{\mdseries} %eliminate bolded chapter titles in toc
+\renewcommand\cftsubparafont{\mdseries} %eliminate bolded chapter titles in toc
+
+%fonts for all entry level page numbers
+\renewcommand{\cftchappagefont}{\mdseries} %remove bolding of page numbers for chapter headers in toc
+\renewcommand\cftsecpagefont{\mdseries} %eliminate bolded chapter titles in toc
+\renewcommand\cftsubsecpagefont{\mdseries} %eliminate bolded chapter titles in toc
+\renewcommand\cftsubsubsecpagefont{\mdseries} %eliminate bolded chapter titles in toc
+\renewcommand\cftparapagefont{\mdseries} %eliminate bolded chapter titles in toc
+\renewcommand\cftsubparapagefont{\mdseries} %eliminate bolded chapter titles in toc
+
+\renewcommand{\cftchapleader}{\cftdotfill{0.1}} %remove chapter bolding + modif dot spacing
+\renewcommand{\cftdotsep}{0.1} %make dots in toc closer together
+
+%spacing between toc items (should be all equal)
+\setlength{\cftbeforechapskip}{0cm} %removes spacing before each chapter element
+\renewcommand{\cftchapafterpnum}{\vskip6pt}
+\renewcommand{\cftsecafterpnum}{\vskip6pt}
+\renewcommand{\cftsubsecafterpnum}{\vskip6pt}
+\renewcommand{\cftsubsubsecafterpnum}{\vskip6pt}
+\renewcommand{\cftparaafterpnum}{\vskip6pt}
+\renewcommand{\cftsubparaafterpnum}{\vskip6pt}
+
+%remove header that appears in table of contents after first page
+\renewcommand{\cftmarktoc}{}
+
+%commands need to be redefined so that leading dots go all the way to the page numbers for all header levels (chap, sec, subsec, subsubsec, para, subpara
+%%%general framework for commands below: cftXfillnum sets the format for the leading dots (\cftchapleader) and the page number (\cftchappagefont) such that leading dots proceed all the way to the page number with no spaces between dots and page number (\nobreak) at which wpoint paragraph mode ends (\par) and vertical spacing (defined  above) after item entry is inserted
+%chapter (level 0)
+\renewcommand{\cftchapfillnum}[1]{%
+  {\cftchapleader}\nobreak
+  {\cftchappagefont #1}\par\cftchapafterpnum
+}
+
+%sec (level 1)
+\renewcommand{\cftsecfillnum}[1]{%
+  {\cftsecleader}\nobreak
+  {\cftsecpagefont #1}\par\cftsecafterpnum
+}
+
+%subsec (level 2)
+\renewcommand{\cftsubsecfillnum}[1]{%
+  {\cftsubsecleader}\nobreak
+  {\cftsubsecpagefont #1}\par\cftsubsecafterpnum
+}
+
+%subsubsec (level 3)
+\renewcommand{\cftsubsubsecfillnum}[1]{%
+  {\cftsubsubsecleader}\nobreak
+  {\cftsubsubsecpagefont #1}\par\cftsubsubsecafterpnum
+}
+
+%para (level 4)
+\renewcommand{\cftparafillnum}[1]{%
+  {\cftparaleader}\nobreak
+  {\cftparapagefont #1}\par\cftparaafterpnum
+}
+
+%subpara (level 5)
+\renewcommand{\cftsubparafillnum}[1]{%
+  {\cftsubparaleader}\nobreak
+  {\cftsubparapagefont #1}\par\cftsubparaafterpnum
+}
+
+%LIST OF TABLES
+\renewcommand{\cfttabfont}{\mdseries} %set font for entries in lot
+\renewcommand{\cfttabpagefont}{\mdseries} %set front for page numbers
+
+\setlength{\cftbeforelottitleskip}{0cm} %remove vertical space above table of contents
+\setlength{\cftafterlottitleskip}{0.5cm} %space between title for list of tables and list entries
+%two lines below ensure centered title for toc
+%needed so that table of contents entry is not indented
+\renewcommand{\cftlottitlefont}{\hfill\fontsize{14}{14}\selectfont\bfseries\MakeUppercase}
+\renewcommand{\cftafterlottitle}{\hfill} %sometimes another \hfill is needed; depends on some setting in abovce code
+
+%commands need to be redefined so that leading dots go all the way to the page numbers for tables
+%%%general framework for command below: cftfigfillnum sets the format for the leading dots (\cftfigleader) and the page number (\cftfigpagefont) such that leading dots proceed all the way to the page number with no spaces between dots and page number (\nobreak) at which point paragraph mode ends (\par) and vertical spacing (defined  below) after item entry is inserted
+\setlength{\cftbeforetabskip}{0cm} %removes spacing before each chapter element
+\renewcommand{\cfttabafterpnum}{\vskip6pt}
+
+\renewcommand{\cfttabfillnum}[1]{%
+  {\cfttableader}\nobreak
+  {\cfttabpagefont #1}\par\cfttabafterpnum
+}
+
+%remove header that appears in list of tables after first page
+\renewcommand{\cftmarklot}{}
+
+%LIST OF FIGURES
+\renewcommand{\cftfigfont}{\mdseries} %set font for entries in lof
+\renewcommand{\cftfigpagefont}{\mdseries} %set front for page numbers
+
+\setlength{\cftbeforeloftitleskip}{0cm} %remove vertical space above table of contents
+\setlength{\cftafterloftitleskip}{0.5cm} %space between title for list of figures and list entries
+
+%two lines below ensure centered title for toc
+%needed so that table of contents entry is not indented
+\renewcommand{\cftloftitlefont}{\hfill\fontsize{14}{14}\selectfont\bfseries\MakeUppercase}
+\renewcommand{\cftafterloftitle}{\hfill} %sometimes another \hfill is needed; depends on some setting in abovce code
+
+%commands need to be redefined so that leading dots go all the way to the page numbers for figures
+%%%general framework for command below: cftfigfillnum sets the format for the leading dots (\cftfigleader) and the page number (\cftfigpagefont) such that leading dots proceed all the way to the page number with no spaces between dots and page number (\nobreak) at which wpoint paragraph mode ends (\par) and vertical spacing (defined  below) after item entry is inserted
+\setlength{\cftbeforefigskip}{0cm} %removes spacing before each chapter element
+\renewcommand{\cftfigafterpnum}{\vskip6pt}
+
+\renewcommand{\cftfigfillnum}[1]{%
+  {\cftfigleader}\nobreak
+  {\cftfigpagefont #1}\par\cftfigafterpnum
+}
+
+%remove header that appears in list of figures after first page
+\renewcommand{\cftmarklof}{}
+
+%----------------------------------------------------------------------------------------
+% LIST OF APPENDICES
+%----------------------------------------------------------------------------------------
+\newcommand{\listappname}{List of Appendices}
+\newlistof[chapter]{app}{loa}{\listappname} %creates a new appendix counter that will be reset at the start of each \chapter
+
+\setcounter{loadepth}{5} %loa will  go to depth of level 5
+\setlength{\cftbeforeloatitleskip}{0cm} %remove vertical space above loa
+\setlength{\cftafterloatitleskip}{0.5cm} %space between title for loa and list entries
+\renewcommand{\cftmarkloa}{} %remove header titles
+
+%two lines below ensure centered title for loa
+%needed so that table of contents entry is not indented
+\renewcommand{\cftloatitlefont}{\hfill\fontsize{14}{14}\selectfont\bfseries\MakeUppercase}
+\renewcommand{\cftafterloatitle}{\hfill\hfill} %sometimes another \hfill is needed; depends on some setting in above code
+
+
+%APPENDIX (level 0)
+\renewcommand{\theapp}{\Alph{app}} %sets alphabetic counter for appendix
+\renewcommand{\cftappfont}{\mdseries} %set font for level 0 entry in loa
+\renewcommand{\cftapppagefont}{\mdseries} %set front for page numbers
+
+\renewcommand{\cftapppresnum}{Appendix\space}
+\renewcommand{\cftappaftersnum}{:\space}
+\settowidth{\cftappnumwidth}{\cftapppresnum\theapp\cftappaftersnum\space}
+
+\setlength{\cftbeforeappskip}{0cm} %removes vertical spacing before each chapter element
+\renewcommand{\cftappafterpnum}{\vskip6pt}
+
+%updates appendix counter, modifies chapter title such so that it is Appendix _letter_: #1
+
+\newcommand{\app}[1]{%
+  \refstepcounter{app}\pdfbookmark[-1]{\cftapppresnum\theapp\cftappaftersnum#1}{#1\theapp}%
+  \chapter*{\fontsize{16}{16}\selectfont\bfseries\cftapppresnum\theapp\cftappaftersnum #1} %formats entry in document
+  \addcontentsline{loa}{app}{{\cftapppresnum\theapp\cftappaftersnum}#1}%
+  \par
+}
+
+
+% figure and table counting in appendix
+\usepackage{chngcntr}
+
+
+%leading dots for appendix (end immediately before page number)
+\renewcommand{\cftappfillnum}[1]{%
+ {\cftappleader}\nobreak{\cftapppagefont #1}\par\cftappafterpnum
+}
+
+%SECAPPENDIX (level 1; format A.1 : title)
+\newlistentry[app]{secapp}{loa}{1}
+\renewcommand{\thesecapp}{\theapp.\arabic{secapp}}
+\renewcommand{\cftsecappfont}{\mdseries} %set font for level 1 entry in loa
+\renewcommand{\cftsecapppagefont}{\mdseries} %set front for page numbers
+
+\renewcommand{\cftsecapppresnum}{} %remove word 'Appendix'
+\renewcommand{\cftsecappaftersnum}{\hspace{0.5cm}}  %replicate toc format for sub-level-0 headers \thesubappendix (i.e., A.1   title )
+
+\setlength{\cftbeforesecappskip}{0cm} %removes vertical spacing before each chapter element
+\renewcommand{\cftsecappafterpnum}{\vskip6pt}
+\setlength{\cftsecappindent}{1.55em} %indentation in loa
+\settowidth{\cftsecappnumwidth}{\cftsecapppresnum\thesecapp\cftsecappaftersnum\hspace{0.3cm}}
+
+%updates appendix counter, modifies chapter title such so that it is Appendix _letter_: #1
+\newcommand{\secapp}[1]{%
+  \refstepcounter{secapp}\pdfbookmark[0]{#1}{#1\thesubapp}%
+  \section*{\thesecapp\hspace{0.3cm} #1} %spacing between section number and title in text
+  \addcontentsline{loa}{secapp}{{\thesecapp\cftsecappaftersnum}#1}%
+  \par
+}
+
+%leading dots for appendix (end immediately before page number)
+\renewcommand{\cftsecappfillnum}[1]{%
+ {\cftsecappleader}\nobreak{\cftsecapppagefont #1}\par\cftsecappafterpnum
+}
+
+
+%SUBAPPENDIX (level 2; format A.1.1 : title)
+\newlistentry[app]{subapp}{loa}{1}
+\renewcommand{\thesubapp}{\thesecapp.\arabic{subapp}}
+\renewcommand{\cftsubappfont}{\mdseries} %set font for level 2 entry in loa
+\renewcommand{\cftsubapppagefont}{\mdseries} %set front for page numbers
+
+\renewcommand{\cftsubapppresnum}{} %remove word 'Appendix'
+\renewcommand{\cftsubappaftersnum}{\hspace{0.5cm}}  %replicate toc format for sub-level-0 headers \thesubappendix (i.e., A.1   title )
+
+\setlength{\cftbeforesubappskip}{0cm} %removes vertical spacing before each chapter element
+\renewcommand{\cftsubappafterpnum}{\vskip6pt}
+\setlength{\cftsubappindent}{3.10em} %indentation in loa
+%\renewcommand{\cftsubappnumwidth}{1.47cm}
+\settowidth{\cftsubappnumwidth}{\thesubapp\cftsubappaftersnum\hspace{0.3cm}}
+
+%updates appendix counter, modifies chapter title such so that it is Appendix _letter_: #1
+\newcommand{\subapp}[1]{%
+  \refstepcounter{subapp}\pdfbookmark[1]{#1}{#1\thesubapp}%
+  \subsection*{\thesubapp\hspace{0.3cm} #1}%
+  \addcontentsline{loa}{subapp}{{\thesubapp\cftsubappaftersnum}#1}%
+  \par
+}
+
+%leading dots for appendix (end immediately before page number)
+\renewcommand{\cftsubappfillnum}[1]{%
+ {\cftsubappleader}\nobreak{\cftsubapppagefont #1}\par\cftsubappafterpnum
+}
+
+
+% SUBSUBAPPENDIX (level 3; format A.1.1.1  title)
+\newlistentry[app]{subsubapp}{loa}{1}
+\renewcommand{\thesubsubapp}{\thesubapp.\arabic{subsubapp}}
+\renewcommand{\cftsubsubappfont}{\mdseries} %set font for level 3 entry in loa
+\renewcommand{\cftsubsubapppagefont}{\mdseries} %set front for page numbers
+
+
+\renewcommand{\cftsubsubapppresnum}{} %remove word 'Appendix'
+\renewcommand{\cftsubsubappaftersnum}{\hspace{0.5cm}}  %space after subsubapp title
+
+\setlength{\cftbeforesubsubappskip}{0cm} %removes vertical spacing before each chapter element
+\renewcommand{\cftsubsubappafterpnum}{\vskip6pt}
+\setlength{\cftsubsubappindent}{4.65em} %indentation in loa (1.55 *2)
+\settowidth{\cftsubsubappnumwidth}{\thesubsubapp\cftsubsubappaftersnum\hspace{0.3cm}}
+
+%updates appendix counter, modifies chapter title such so that it is Appendix _letter_: #1
+\newcommand{\subsubapp}[1]{%
+  \refstepcounter{subsubapp}\pdfbookmark[2]{#1}{#1\thesubsubapp}%
+  \subsubsection*{\thesubsubapp\hspace{0.3cm} #1}%
+  \addcontentsline{loa}{subsubapp}{{\thesubsubapp\cftsubsubappaftersnum}#1}%
+  \par
+}
+
+%leading dots for appendix (end immediately before page number)
+\renewcommand{\cftsubsubappfillnum}[1]{%
+ {\cftsubsubappleader}\nobreak{\cftsubsubapppagefont #1}\par\cftsubsubappafterpnum
+}
+
+% PARA (level 4; format A.1.1.1.1  title)
+\newlistentry[app]{paraapp}{loa}{1}
+\renewcommand{\theparaapp}{\thesubsubapp.\arabic{paraapp}}
+\renewcommand{\cftparaappfont}{\mdseries} %set font for level 4 entry in loa
+\renewcommand{\cftparaapppagefont}{\mdseries} %set front for page numbers
+
+\renewcommand{\cftparaapppresnum}{} %remove word 'Appendix'
+\renewcommand{\cftparaappaftersnum}{\hspace{0.5cm}}  %space after paraapp title
+
+\setlength{\cftbeforeparaappskip}{0cm} %removes vertical spacing before each chapter element
+\renewcommand{\cftparaappafterpnum}{\vskip6pt}
+\setlength{\cftparaappindent}{6.2em} %indentation in loa (1.55 *2)
+\settowidth{\cftparaappnumwidth}{\theparaapp\cftparaappaftersnum\hspace{0.3cm}}
+
+%updates appendix counter, modifies chapter title such so that it is Appendix _letter_: #1
+\newcommand{\paraapp}[1]{%
+  \refstepcounter{paraapp}\pdfbookmark[3]{#1}{#1\theparaapp}%
+  \paragraph*{\theparaapp\hspace{0.3cm} #1}%
+  \addcontentsline{loa}{paraapp}{{\theparaapp\cftparaappaftersnum}#1}%
+  \par
+}
+
+%leading dots for appendix (end immediately before page number)
+\renewcommand{\cftparaappfillnum}[1]{%
+ {\cftparaappleader}\nobreak{\cftparaapppagefont #1}\par\cftparaappafterpnum
+}
+
+% SUBPARA (level 5; format A.1.1.1.1  title)
+\newlistentry[app]{subparaapp}{loa}{1}
+\renewcommand{\thesubparaapp}{\theparaapp.\arabic{subparaapp}}
+\renewcommand{\cftsubparaappfont}{\mdseries} %set font for level 5 entry in loa
+\renewcommand{\cftsubparaapppagefont}{\mdseries} %set front for page numbers
+
+\renewcommand{\cftsubparaapppresnum}{} %remove word 'Appendix'
+\renewcommand{\cftsubparaappaftersnum}{\hspace{0.5cm}}  %space after subparaapp title
+
+\setlength{\cftbeforesubparaappskip}{0cm} %removes vertical spacing before each chapter element
+\renewcommand{\cftsubparaappafterpnum}{\vskip6pt}
+\setlength{\cftsubparaappindent}{7.75em} %indentation in loa (1.55 *2)
+\settowidth{\cftsubparaappnumwidth}{\thesubparaapp\cftsubparaappaftersnum\hspace{0.3cm}}
+
+%updates appendix counter, modifies chapter title such so that it is Appendix _letter_: #1
+\newcommand{\subparaapp}[1]{%
+  \refstepcounter{subparaapp}\pdfbookmark[4]{#1}{#1\thesubparaapp}%
+  \paragraph*{\thesubparaapp\hspace{0.3cm} #1} %paragraph is used because subparagraph has weird numbering problem
+  \addcontentsline{loa}{subparaapp}{{\thesubparaapp\cftsubparaappaftersnum}#1}%
+  \par
+}
+
+%SUBSUBPARA (level 6; format A.1.1.1.1.1  title)
+\newlistentry[app]{subsubparaapp}{loa}{1}
+\renewcommand{\thesubsubparaapp}{\thesubparaapp.\arabic{subsubparaapp}}
+
+\renewcommand{\cftsubsubparaapppresnum}{} %remove word 'Appendix'
+\renewcommand{\cftsubsubparaappaftersnum}{\hspace{0.5cm}}  %space after subparaapp title
+
+\setlength{\cftbeforesubsubparaappskip}{0cm} %removes vertical spacing before each chapter element
+\renewcommand{\cftsubsubparaappafterpnum}{\vskip6pt}
+\setlength{\cftsubsubparaappindent}{9.3em} %indentation in loa (1.55 *2)
+\settowidth{\cftsubsubparaappnumwidth}{\thesubsubparaapp\cftsubsubparaappaftersnum\hspace{0.3cm}}
+
+%updates appendix counter, modifies chapter title such so that it is Appendix _letter_: #1
+\newcommand{\subsubparaapp}[1]{%
+  \refstepcounter{subsubparaapp}\pdfbookmark[5]{#1}{#1\thesubsubparaapp}%
+  \subparagraph*{\thesubsubparaapp\hspace{0.3cm} #1} %paragraph is used because subparagraph has weird numbering problem
+  \addcontentsline{loa}{subsubparaapp}{{\thesubsubparaapp\cftsubsubparaappaftersnum}#1}%
+  \par
+}
+
+%leading dots for appendix (end immediately before page number)
+\renewcommand{\cftsubsubparaappfillnum}[1]{%
+ {\cftsubsubparaappleader}\nobreak{\cftsubsubparaapppagefont #1}\par\cftsubsubparaappafterpnum
+}
+
+\newcommand{\listabbname}{List of Abbreviations}
+\newlistof[chapter]{abb}{loab}{\listabbname} %creates a new appendix counter that will be reset at the start of each \chapter
+
+\setlength{\cftbeforeloabtitleskip}{0cm} %remove vertical space above loab
+\setlength{\cftafterloabtitleskip}{0.2cm} %space between title for loab and list entries
+
+\renewcommand{\cftmarkloab}{} %remove header titles
+
+%two lines below ensure centered title for loa
+%needed so that table of contents entry is not indented
+\renewcommand{\cftloabtitlefont}{\hfill\fontsize{14}{14}\selectfont\bfseries\MakeUppercase}
+\renewcommand{\cftafterloabtitle}{\hfill\hfill} %sometimes another \hfill is needed; depends on some setting in above code
+
+
+
+%----------------------------------------------------------------------------------------
+% REFERENCES & HYPERLINKING
+%----------------------------------------------------------------------------------------
+
+\usepackage{hyperref}
+
+$if(backref)$
+\PassOptionsToPackage{backref=true}{biblatex}
+$endif$
+
+\RequirePackage[autocite=inline, style = apa]{biblatex}
+\addbibresource{$bibliography$}
+
+
+\DeclareSourcemap{\maps[datatype = bibtex]{\map{\step[fieldsource = journal, match = \regexp{\x{26}}, replace = \regexp{\{\\\x{26}\}}] }}}
+\DeclareSourcemap{\maps[datatype = bibtex]{\map{\step[fieldsource = title, match = \regexp{\x{26}}, replace = \regexp{\{\\\x{26}\}}] }}}
+
+$if(backref)$
+\hypersetup{pdfpagemode={UseOutlines},
+    bookmarksopen=true,
+    backref=page}
+\usepackage{hypernat}
+%%adds escape character to ampersand characters in journal fields of .bib file
+\DefineBibliographyStrings{english}{backrefpage={cited on p.},backrefpages={cited on pp.}}
+$endif$
+
+
+\hypersetup{pdfpagemode={UseOutlines},
+bookmarksopen=true, %allows bookmarks in pdf
+hypertexnames=true, %enables counting when referencing to sections
+colorlinks = true, % Set to true to enable coloring links, a nice option, false to turn them off
+%citecolor = blue, % The color of citations
+%linkcolor = blue, % The color of references to document elements (sections, figures, etc)
+%urlcolor= blue,
+%anchorcolor = blue, % The color of hyperlinks (URLs)
+allcolors = $linkcolor$,
+pdfstartview={FitV},
+breaklinks=true, backref=page
+}
+
+
+
+%example numbering
+\newtheorem{theorem}{Theorem}[section]
+\renewcommand{\thetheorem}{\theapp.\arabic{theorem}}
+\newtheorem{example}{Example}
+\renewcommand{\theexample}{\theapp.\arabic{example}}
+
+$if(nocite)$
+\nocite{$nocite$}
+$endif$
+
+%load additional latex packages needed within document
+$for(header-includes)$
+	$header-includes$
+$endfor$
+
+%----------------------------------------------------------------------------------------
+% DOCUMENT OUTLINE
+%----------------------------------------------------------------------------------------
+
+% BEGIN DOCUMENT
+\begin{document}
+\frontmatter %pages will be numbered with roman numerals
+
+$if(title)$
+  \maketitle
+$endif$
+
+\setcounter{page}{2} %ensures abstract page number starts at roman numberal ii
+
+$if(abstract)$
+\cleardoublepage
+   %\thispagestyle{empty} %removes page number only for abstract page
+  \begin{abstract}{$linespacing$}{$abstract$}  %[linespacing][abstract]
+  \end{abstract}
+$endif$
+
+
+% notice how yaml variables are indexed with dollar signs and then passed into second argument of preambleItem environments
+$if(dedication)$
+  \cleardoublepage
+  \begin{preambleItem}{$linespacing$}{Dedication}{$dedication$}
+  \end{preambleItem}
+$endif$
+
+$if(acknowledgements)$
+  \cleardoublepage
+   \begin{preambleItem}{$linespacing$}{Acknowledgements}{$acknowledgements$}
+  \end{preambleItem}
+$endif$
+
+
+
+%move page numbers to top right for list of tables, figures, and tables
+\fancypagestyle{plain}{%
+  \fancyhf{}% clear all header and footer fields
+  \renewcommand{\headrulewidth}{0pt}
+  \fancyhead[R]{\thepage}
+
+   $if(ArialFont)$
+   \fancyhead[R]{\sffamily\roman{page}}
+  $endif$
+}
+
+%table of contents
+$if(toc)$
+  \cleardoublepage
+  \hypersetup{linkcolor = black, pdfborder= 0 0 0} %remove red borders around toc items
+  \setcounter{secnumdepth}{$toc-depth$}
+  \setcounter{tocdepth}{$toc-depth$}
+  \tableofcontents
+  \newpage
+$endif$
+
+%list of tables
+$if(lot)$
+  \cleardoublepage
+  \listoftables
+  \newpage
+$endif$
+
+%list of figures
+$if(lof)$
+  \cleardoublepage
+  \listoffigures
+  \newpage
+$endif$
+
+$if(abbreviations)$
+\cleardoublepage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{\listabbname}
+  \listofabb
+\fontsize{12}{12}\selectfont
+\begin{table}[h]
+    \begin{tabular}{ll}
+        $for(abbreviations/pairs)$
+         \textbf{$it.key$} & $it.value$ \\
+        $endfor$
+    \end{tabular}
+\end{table}
+$endif$
+
+%list of appendices
+$if(loa)$
+  \cleardoublepage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{\listappname}
+  \listofapp
+
+  \newpage
+$endif$
+
+$if(ArialFont)$
+\renewcommand*{\bibfont}{\sffamily\selectfont}
+$endif$
+
+\mainmatter % here the regular arabic numbering starts
+
+$body$
+
+$if(print_refs)$
+\newpage
+\renewcommand\bibname{References}
+\phantomsection
+\addcontentsline{toc}{chapter}{\bibname}
+$if(ArialFont)$
+\renewcommand*{\bibfont}{\sffamily\selectfont}
+$endif$
+
+\printbibliography
+$endif$
+
+
+\end{document}
+

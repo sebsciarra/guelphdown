@@ -22,12 +22,8 @@ options(tinytex.compile.min_times = 3)
 \counterwithin{equation}{app} %reset figure number counter for each appendix
 
 \counterwithin{chunk}{app} %reset code chunk numbering
-
 ```
 
-`r if(knitr:::is_latex_output()) '\\appendix'`
-
-`r if(!knitr:::is_latex_output()) '# (APPENDIX) Appendix {-}'` 
 
 
 ```{r package_loading_int_app, include=F}
@@ -157,7 +153,6 @@ saveRDS(object = param_summary_exp_3, file = 'data/uf_param_summary_exp_3.RData'
 saveRDS(object = param_summary_exp_3_def, file = 'data/uf_param_summary_exp_3_def.RData')
 
 ```
-
 
 
 \newpage 

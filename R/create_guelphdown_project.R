@@ -20,5 +20,5 @@ create_guelphdown_project <- function(path = getwd()) {
 guelphdown_file <- function(...) {
 
   # from https://github.com/rstudio/bookdown/blob/master/R/utils.R
-  system.file(..., package = 'thesisdown', mustWork = TRUE)
+  system.file(..., package = 'guelphdown', mustWork = TRUE)
 }

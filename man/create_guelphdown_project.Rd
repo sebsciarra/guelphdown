@@ -4,7 +4,7 @@
 \alias{create_guelphdown_project}
 \title{This package will create a function called create_guelphdown_project()}
 \usage{
-create_guelphdown_project(path, ...)
+create_guelphdown_project(path = getwd())
 }
 \description{
 It's callback is at: inst/rstudio/templates/project/create_project.dcf

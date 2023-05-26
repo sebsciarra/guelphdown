@@ -3,38 +3,22 @@
 #' It's callback is at: inst/rstudio/templates/project/create_project.dcf
 #'
 #' @export
-create_guelphdown_project <- function(path, ...) {
+create_guelphdown_project <- function(path = getwd()) {
 
-  # Create the project path given the name chosen by the user:
-  dir.create(path, recursive = TRUE, showWarnings = FALSE)
+  # from https://github.com/rstudio/bookdown/blob/master/R/skeleton.R
+  # ensure directory exists
+  #  dir.create(path, recursive = TRUE, showWarnings = FALSE)
 
-  # Change the working directory to the recently created folder:
-  setwd(file.path(getwd(), path))
+  # copy 'resources' folder to path
+  resources <- guelphdown_file('rstudio', 'templates', 'project', 'resources')
 
-  # Collect the list of inputs in a list to be called later:
-  dots <- list(...)
+  R.utils::copyDirectory(from = resources,
+                         to = path,
+                         recursive = TRUE)
+}
 
-  # In the project template we've added 2 choices for the user:
-  # * One allows them to select if the project will have a .gitignore file
-  # * The other will create a folder, given a select input from the user
-  # Check .gitignore argument
-  if(dots[["createGitignore"]]) {
-    git_ignores <-
-      c(
-        '.Rhistory',
-        '.Rapp.history',
-        '.RData',
-        '.Ruserdata',
-        '.Rproj.user/',
-        '.Renviron'
-      )
-    writeLines(paste(git_ignores, sep = '\n'), '.gitignore')
-  }
+guelphdown_file <- function(...) {
 
-  # Check selected folder
-  if(dots[["folder"]] == "Production"){
-    dir.create("production", recursive = TRUE, showWarnings = FALSE)
-  } else {
-    dir.create("development", recursive = TRUE, showWarnings = FALSE)
-  }
+  # from https://github.com/rstudio/bookdown/blob/master/R/utils.R
+  system.file(..., package = 'thesisdown', mustWork = TRUE)
 }

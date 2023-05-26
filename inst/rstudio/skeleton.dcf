@@ -2,14 +2,3 @@ Binding: create_guelphdown_project
 Title: Thesis project with guelphdown
 OpenFiles: index.Rmd
 
-Parameter: folder
-Widget: SelectInput
-Label: Choose the scope of the project
-Fields: Production, Development
-Default: Production
-Position: left
-Parameter: createGitignore
-Widget: CheckboxInput
-Label: Create .gitignore
-Default: On
-Position: right

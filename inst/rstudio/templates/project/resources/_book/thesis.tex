@@ -608,20 +608,7 @@ breaklinks=true, backref=page
 
 
 %load additional latex packages needed within document
-	\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{colortbl}
-\usepackage{pdflscape}
-\usepackage{tabu}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage[normalem]{ulem}
-\usepackage{makecell}
-\usepackage{xcolor}
+	
 
 %----------------------------------------------------------------------------------------
 % DOCUMENT OUTLINE
@@ -725,6 +712,8 @@ In the \texttt{.Rmd} file, notice that a tag has been added so that a hyperlink 
 \addcontentsline{toc}{chapter}{References}
 \printbibliography
 
+`
+
 %change numbering for figures, tables, and equations for appendices
 \renewcommand\thefigure{\theapp.\arabic{figure}} %change figure numbering for appendix such that it goes A.1, A.2, etc.
 \counterwithin{figure}{app} %reset figure number counter for each appendix
@@ -747,8 +736,7 @@ To understand why cross-sectional results are unlikely to agree with longitudina
 \bar{X}_t = \frac{1}{P}\sum^P_{p = 1} x_p,
 \label{eq:cross-mean}
 \end{align}
-\hypertarget{example}{%
-\section{Example}\label{example}}
+\subapp{Example}
 \begin{example}
 \protect\hypertarget{exm:taylor-estimates}{}\label{exm:taylor-estimates}Estimates of Taylor series approximation of \(f(x) = \cos(x)\) as the difference between the point of evaluation \(\mathrm{x}\) and the point of derivation \(\mathrm{a}\) increases.
 
@@ -784,10 +772,11 @@ P^2(\cos(x = 4), 0) &\neq \cos(x = 4) \nonumber \\
 
 \noindent \hrulefill
 \end{example}
-\hypertarget{code-block}{%
-\section{Code block}\label{code-block}}
+\app{Code block}
 
 The code that I used to model logistic pattern of change (see \protect\hyperlink{data-generation}{data generation}) is shown in Code Block \ref{structured-model}. Note that, the code is largely excerpted from the \texttt{run\_exp\_simulations()} and \texttt{create\_logistic\_model\_ns()} functions from the \texttt{nonlinSims} package, and so readers interested in obtaining more information should consult the source code of this package. One important point to mention is that the model specified in Code Block \ref{structured-model} assumes time-structured data.
+
+\captionof{chunk}{OpenMx Code for Structured Latent Growth Curve Model That Assumes Time-Structured Data}\restoreparindent\label{structured-model}
 \begin{Shaded}
 \begin{Highlighting}[numbers=left,,]
 \CommentTok{\#Days on which measurements are assumed to be taken (note that model assumes time{-}structured data; that is, at each time point, participants provide data at the exact same moment). The measurement days obtained by finding the unique values in the \textasciigrave{}measurement\_day\textasciigrave{} column of the generated data set. }
@@ -889,8 +878,6 @@ The code that I used to model logistic pattern of change (see \protect\hyperlink
 \NormalTok{model\_results }\OtherTok{\textless{}{-}} \FunctionTok{mxTryHard}\NormalTok{(latent\_growth\_model)}
 \end{Highlighting}
 \end{Shaded}
-\hypertarget{multipage-table}{%
-\section{Multipage table}\label{multipage-table}}
 
 
 

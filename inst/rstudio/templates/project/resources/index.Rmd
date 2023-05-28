@@ -13,6 +13,8 @@ field: 'field (if necessary)' #comment out if unecessary
 #specialization: 'Statistics'
 knit: bookdown::render_book
 site: bookdown::bookdown_site
+params:
+  'Install needed packages for {thesisdown}': True
 #include additional LaTeX code below if necessary 
 header-includes:
 #University of Guelph formatting is only supported pdf output 

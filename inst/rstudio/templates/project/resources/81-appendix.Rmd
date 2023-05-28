@@ -1,5 +1,22 @@
 
+`
+```{r code-block-numbering, include=F}
+library(easypackages)
+packages <- c('knitr')
+libraries(packages)
 
+knitr::opts_chunk$set(message = F)
+
+#see https://stackoverflow.com/questions/50702942/does-rmarkdown-allow-captions-and-references-for-code-chunks 
+#note that \\restoreparindent is needed so that \\captionof does not eliminate paragraph indenting
+oldSource <- knit_hooks$get("source")
+knit_hooks$set(source = function(x, options) {
+  x <- oldSource(x, options)
+  x <- ifelse(!is.null(options$ref), paste0("\\label{", options$ref,"}", x), x)
+  ifelse(!is.null(options$codecap), paste0("\\captionof{chunk}{", options$codecap,"}", "\\restoreparindent", x), x)
+})
+
+```
 
 ```{=tex}
 %change numbering for figures, tables, and equations for appendices
@@ -26,7 +43,7 @@ To understand why cross-sectional results are unlikely to agree with longitudina
 (\#eq:cross-mean)
 \end{align}
 
-## Example 
+\subapp{Example} 
 
 ```{example, taylor-estimates, echo=T}
 Estimates of Taylor series approximation of $f(x) = \cos(x)$ as the difference between the point of evaluation $\mathrm{x}$ and the point of derivation $\mathrm{a}$ increases.
@@ -68,7 +85,7 @@ P^2(\cos(x = 4), 0) &\neq \cos(x = 4) \nonumber \\
 \noindent \hrulefill
 ```
 
-## Code block
+\app{Code block}
 
 The code that I used to model logistic pattern of change (see [data generation](#data-generation)) is shown in Code Block \ref{structured-model}. Note that, the code is largely excerpted from the `run_exp_simulations()` and `create_logistic_model_ns()` functions from the `nonlinSims` package, and so readers interested in obtaining more information should consult the source code of this package. One important point to mention is that the model specified in Code Block \ref{structured-model} assumes time-structured data. 
 
@@ -173,7 +190,6 @@ model_results <- mxTryHard(latent_growth_model)
   
 ```
 
-## Multipage table 
 
 
 

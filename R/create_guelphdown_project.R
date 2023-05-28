@@ -22,3 +22,5 @@ guelphdown_file <- function(...) {
   # from https://github.com/rstudio/bookdown/blob/master/R/utils.R
   system.file(..., package = 'guelphdown', mustWork = TRUE)
 }
+
+

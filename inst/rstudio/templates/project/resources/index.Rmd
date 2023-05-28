@@ -1,42 +1,35 @@
 ---
-title: 'Is Timing Everything? The Effects of Measurement Timing on the Performance of Nonlinear Longitudinal Models'
-shorttitle        : "Measurement timing"
-author: 'Sebastian L.V. Sciarra'
-date: 'April, 2023'
-year: '2023'
+title: 'Thesis title'
+shorttitle        : "shortitle"
+author: 'Author name'
+date: 'date'
+year: 'year'
 institution: 'University of Guelph'
-advisor: 'David Stanley'
+advisor: 'advisor name'
 #altadvisor: 'MJ' 
-department: 'Psychology'
-degree: 'Doctorate of Philosophy'
-field: 'Industrial-Organizational Psychology'
+department: 'department'
+degree: 'degree'
+field: 'field (if necessary)' #comment out if unecessary 
 #specialization: 'Statistics'
 knit: bookdown::render_book
 site: bookdown::bookdown_site
+#include additional LaTeX code below if necessary 
 header-includes:
-
-params:
-  'Install needed packages for {thesisdown}': True
-  
 #University of Guelph formatting is only supported pdf output 
 output:
   thesisdown::thesis_pdf: 
     pandoc_args: ["--biblatex"]
     includes:
-     after_body: ['80-references.Rmd', '81-appendix.Rmd']
+     after_body: ['80-references.Rmd', '81-appendix.Rmd'] #add any additional files to be compiled after the main text
 # access the content in 00-abstract.Rmd file to print the abstract. 
 abstract: '`r if(knitr:::is_latex_output()) paste(readLines(list.files(path = here::here(),pattern = "00--abstract.Rmd", recursive = TRUE, full.names = TRUE)), collapse = "\n  ")`'
 # The acknowledgements section can also be accessed like the abstract, or simply printed from the YAML header as shown below. Note that a tab 
 # is needed on the line after the `|`.
 acknowledgements: |
- First and foremost, I would like to extend my unending gratitude to my supervisor, David Stanley. Without your guidance, I would never have been able to put this document together. Whenever I had problems to solve, you always managed to help me find solutions, and whenever I set my sights on learning new topics, you always provided encouragement, regardless if my learning required a day or a month. You taught me how to write, how to code, and, most importantly, how to think.  
-  \indent Second, I would like to thank my committee members. To Drs. David Walters and Ian Newby-Clark, I appreciate all your feedback and contributions to my dissertation, and for unknowingly taking on the responsibility to read such a lengthy document. I also extend a similar gratitude to Dr. Jeffrey Spence for reading through a document that was certainly not a page-turner, and also for your excellent teaching of statistics and all our great discussions.  
-  \indent Third, and certainly not least, I would like to thank my family. I would like to thank my father, Massimo, for tolerating my unnecessarily demanding cooking expeditions, my mother, Gabriele, for her patience, my brother, Alessandro, for listening to my rants about cooking and statistics, and my grandmother, Annemarie, for telling my mother to calm down when dinner had not yet been served at exactly 7:30. 
+  [Acknowledgements go here]
+#comment out dedication if not necessary
 dedication: |
- I dedicate this document to Don Cameron. Without you, none of this would have been possible. 
-preface: |
-  This is an example of a thesis setup to use the reed thesis document class 
-  (for LaTeX) and the R bookdown package, in general.
+  [Dedication goes here if necessary] 
 #abbreviations:
 #  ABC: American Broadcasting Company
 #  CBS: Colombia Broadcasting System
@@ -44,7 +37,8 @@ preface: |
 #  PBS: Public Broadcasting System
 # Specify the location of the bibliography below
 bibliography: bib/references.bib
-#csl: csl/apa.csl
+#if biblatex is not desired and you want to format references using .csl file, uncomment line below 
+#csl: csl/apa.csl 
 lot: true  #list of tables 
 lof: true  #list of figures
 loa: true  #list of appendices
@@ -60,260 +54,60 @@ print: false #creates print version of thesis with blank pages in preamble
 print_refs: false #prints references (useful when drafting); use in conjunction with knit_exit() to stop rendering at any point 
 ---
 
-
-
 <!--
 Above is the YAML (YAML Ain't Markup Language) header that includes a lot of 
 metadata used to produce the document.  Be careful with spacing in this header!
 
 If you'd prefer to not include a Dedication, for example, simply delete the section entirely, or silence them (add # before each line). 
 
-If you have other LaTeX packages you would like to include, delete the # before header-includes and list the packages after hyphens on new lines.
-
-If you'd like to include a comment that won't be produced in your resulting file enclose it in a block like this.
-
-If you receive a duplicate label error after knitting, make sure to delete the index.Rmd file and then knit again.
+If you have other LaTeX packages you would like to include, list the packages after hyphens on new lines in the header-includes section.
 -->
 
-<!--
-Above is the YAML (YAML Ain't Markup Language) header that includes a lot of 
-metadata used to produce the document.  Be careful with spacing in this header!
-
-If you'd prefer to not include a Dedication, for example, simply delete the section entirely, or silence them (add # before each line). 
-
-If you have other LaTeX packages you would like to include, delete the # before header-includes and list the packages after hyphens on new lines.
-
-If you'd like to include a comment that won't be produced in your resulting file enclose it in a block like this.
-
-If you receive a duplicate label error after knitting, make sure to delete the index.Rmd file and then knit again.
--->
 ```{r package_loading_int, include=F}
 #load packages
-#devtools::install_github(repo = 'sciarraseb/nonlinSimsAnalysis', force = T)
 library(easypackages)
-packages <- c('devtools','tidyverse', 'RColorBrewer', 'parallel', 'data.table', 'kableExtra', 'ggtext', 'egg', 'ggbrace', 'cowplot', 'nonlinSimsAnalysis', 'nonlinSims', 'knitr')
+packages <- c('tidyverse','guelphddown', 'kableExtra', 'knitr') 
 libraries(packages)
+devtools::load_all()
+#needed to compile figures produces by create_apa7_table
 knitr::opts_chunk$set(message = F, results = "asis")
 options(tinytex.compile.min_times = 3)
-load_all()
-#write_bib(x = packages, file = 'bib/package_references.bib') #run code once for including packages in .bib file 
+#write_bib(x = packages, file = 'bib/package_references.bib') #run code once for including packages in a .bib file 
 ```
 
-```{r knitting_setup_int, echo=F, message = F, warning = F}
-#import raw data files (needed for computing variances)
-exp_1_raw <- nonlinSimsAnalysis:::convert_raw_var_to_sd(raw_data = read_csv('data/exp_1_data.csv')) %>%
-  mutate_at(.vars = c("number_measurements", "measurement_spacing", "midpoint"), factor)
-
-exp_2_raw <-nonlinSimsAnalysis:::convert_raw_var_to_sd(raw_data = read_csv('data/exp_2_data.csv')) %>%
-  mutate_at(.vars = c("number_measurements", "measurement_spacing", "sample_size"), factor)
-
-exp_3_raw <-nonlinSimsAnalysis:::convert_raw_var_to_sd(raw_data = read_csv('data/exp_3_data.csv')) %>%
-  mutate_at(.vars = c("number_measurements", "time_structuredness", "sample_size"), factor)
-
-exp_3_def_raw <-nonlinSimsAnalysis:::convert_raw_var_to_sd(raw_data = read_csv('data/exp_3_def.csv')) %>%
-  mutate_at(.vars = c("number_measurements", "time_structuredness", "sample_size"), factor)
-
-
-#unfiltered data 
-param_summary_exp_1 <- readRDS(file = 'data/uf_param_summary_exp_1.RData')
-param_summary_exp_2 <- readRDS(file = 'data/uf_param_summary_exp_2.RData')
-param_summary_exp_3 <- readRDS(file = 'data/uf_param_summary_exp_3.RData')
-param_summary_exp_3_def <- readRDS(file = 'data/uf_param_summary_exp_3_def.RData')
-
-#create analytical versions of summary data + converts vars to sds
-exp_1_analytical <- generate_likert_days_data_sets(summary_data = param_summary_exp_1, exp_num = '1')
-exp_2_analytical <- generate_likert_days_data_sets(summary_data = param_summary_exp_2, exp_num = '2')
-exp_3_analytical <- generate_likert_days_data_sets(summary_data = param_summary_exp_3, exp_num = '3')
-exp_3_def_analytical <- generate_likert_days_data_sets(summary_data = param_summary_exp_3_def, exp_num = '3')
-exp_3_def_analytical$days$time_structuredness <-  factor(x = 'slow_response',labels = 'Time unstructured (slow response)')
-exp_3_def_analytical$likert$time_structuredness <-  factor(x = 'slow_response',labels = 'Time unstructured (slow response)')
-
-combined_analytical_exp_1 <- rbind(exp_1_analytical$likert, exp_1_analytical$days)
-combined_analytical_exp_2 <- rbind(exp_2_analytical$likert, exp_2_analytical$days)
-combined_analytical_exp_3 <- rbind(exp_3_analytical$likert, exp_3_analytical$days)
-combined_analytical_exp_3_def <- rbind(exp_3_def_analytical$likert, exp_3_def_analytical$days)
-
-
-#create condition summary data sets 
-cond_summary_exp_1 <- compute_condition_summary(param_summary_data = combined_analytical_exp_1, facet_var = 'measurement_spacing', 
-                          ind_vars = c('number_measurements', 'measurement_spacing', 'midpoint'))
-cond_summary_exp_2 <- compute_condition_summary(param_summary_data = combined_analytical_exp_2, facet_var = 'measurement_spacing', 
-                  ind_vars = c('number_measurements', 'measurement_spacing', 'sample_size'))
-
-cond_summary_exp_3 <- compute_condition_summary(param_summary_data = combined_analytical_exp_3, facet_var = 'time_structuredness', 
-                          ind_vars = c('number_measurements', 'sample_size', 'time_structuredness'))
-
-
-cond_summary_exp_3_def <- compute_condition_summary(param_summary_data = combined_analytical_exp_3_def, facet_var = 'time_structuredness', 
-                          ind_vars = c('number_measurements', 'sample_size', 'time_structuredness'))
-
-```
-
-```{r pre_knitting_setup_unfiltered_int, echo=F, eval=F, include=F}
-#code should be computed before knitting to decrease knitting time 
-#load data from experiments
-exp_1 <- read_csv(file = 'data/exp_1_data.csv') %>% filter(code == 0)
-exp_2 <- read_csv(file = 'data/exp_2_data.csv')
-exp_3 <- read_csv(file = 'data/exp_3_data.csv')
-exp_3_def <- read_csv(file = 'data/exp_3_def.csv')
-
-
-#compute parameter summary statistics  
-exp_1_long <- exp_1 %>%
-    filter(code == 0) %>%
-    #place parameter estimates in one column
-    pivot_longer(cols = contains(c('theta', 'alpha', 'beta', 'gamma', 'epsilon')),
-                 names_to = 'parameter', values_to = 'estimate') %>%
-    filter(parameter == 'beta_fixed') %>%
-    mutate(pop_value = midpoint)
-
-exp_1_ordered <- order_param_spacing_levels(data = exp_1_long)
-
-param_summary_exp_1 <- compute_parameter_summary(data = exp_1, exp_num = 1)
-param_summary_exp_2 <- compute_parameter_summary(data = exp_2, exp_num = 2)
-param_summary_exp_3 <- compute_parameter_summary(data = exp_3, exp_num = 3)
-param_summary_exp_3_def <- compute_parameter_summary(data = exp_3_def, exp_num = 2)
-
-#necessary factor conversions 
-param_summary_exp_1$number_measurements <- factor(param_summary_exp_1$number_measurements, levels = c(5, 7, 9,11))
-param_summary_exp_1$midpoint <- factor(param_summary_exp_1$midpoint, levels = c(80, 180,280))
-
-param_summary_exp_2$number_measurements <- factor(param_summary_exp_2$number_measurements, levels = c(5, 7, 9,11))
-param_summary_exp_2$sample_size <- factor(param_summary_exp_2$sample_size, levels = c(30, 50, 100, 200, 500, 1000))
-
-param_summary_exp_3$number_measurements <- factor(param_summary_exp_3$number_measurements, levels = c(5, 7, 9,11))
-param_summary_exp_3$sample_size <- factor(param_summary_exp_3$sample_size, levels = c(30, 50, 100, 200, 500, 1000))
-
-#write data sets 
-#save parameter summary files as RData files so that metadata are correctly stored (e.g., factor levels, variable types)
-saveRDS(object = param_summary_exp_1, file = 'data/uf_param_summary_exp_1.RData')
-saveRDS(object = param_summary_exp_2, file = 'data/uf_param_summary_exp_2.RData')
-saveRDS(object = param_summary_exp_3, file = 'data/uf_param_summary_exp_3.RData')
+```{r eval=F, echo=F}
+#text below can be used to insert citations in the references section that do not appear in the text
 ```
 
 \nocite{R-tidyverse, R-nonlinSims, R-nonlinSimsAnalysis, R-devtools, R-RColorBrewer, R-cowplot, R-data.table, R-egg, R-ggbrace, R-ggtext, R-kableExtra, R-knitr}
 
 
 
+
 # Introduction 
+## Quotes
 
 \begin{quote}
     ``Neither the behavior of human beings nor the activities of organizations can be defined without reference to time, and temporal aspects are critical for understanding them" \parencite[][p. 136]{navarro2015}.
 \end{quote}
 
-The topic of time has received considerable attention in organizational psychology over the past 20 years. Examples of well-received articles published around the beginning of the 21^st^ century have discussed how investigating time is important for
-understanding patterns of change and boundary conditions of theory
-[@zaheer1999], how longitudinal research is necessary for disentangling
-different types of causality [@mitchell2001], and explicated patterns
-of organizational change [or institutionalization\; @lawrence2001].
-Since then, articles have emphasized the need to address time in
-specific areas such as performance [@fisher2008; @dalal2014], teams [@roe2012], and goal setting [@fried2004] and, more generally, throughout organizational research [@george2000; @roe2008; @ployhart2010; @sonnentag2012; @navarro2015; @shipp2015; @kunisch2017; @vantilborgh2018; @aguinis2021]. 
-
-The importance of time has also been recognized in organizational theory. In defining a theoretical contribution, @whetten1989 stated that time must be discussed in setting boundary conditions (i.e., under what circumstances does the theory apply) and in specifying relations between variables over time [@mitchell2001; @george2000]. Even if a considerable number of organizational theories do not adhere to the definition of @whetten1989, theoretical models in organizational psychology consist of path diagrams that delineate the causal events of processes. Given that temporal precedence is a necessary condition for establishing causality [@mill2011], time has a role, whether implicitly or explicitly, in organizational theory. 
+## Footnotes 
 
 Despite the considerable attention given towards investigating processes over time and the ubiquity of time in organizational theory, the prevalence of longitudinal research has historically remained low. One study examined the prevalence of longitudinal research from 1970--2006 across five organizational psychology journals and found that 4% of articles used longitudinal designs [@roe2014b]. Another survey of two applied psychology journals in 2005 found that approximately 10% (10 of 105 studies) of studies used longitudinal designs [@roe2008]. Similarly, two surveys of studies employing longitudinal designs with mediation analysis found that, across five journals, only about 10% (7 of 72 studies) did so in 2005 [@maxwell2007] and approximately 16% (15 of 92 studies) did so in 2006 [@mitchell2013].\footnote{Note that the definition of a longitudinal design in \textcite{maxwell2007} and \textcite{mitchell2013} required that measurements be taken over at least three time points so that measurements of the predictor, mediator, and outcome variables were separated over time.} Thus, the prevalence of longitudinal research has remained low.
 
-In the seven sections that follow, I will explain why longitudinal research is necessary and the factors that must be considered when conducting such research. In the first section, I will explain why conducting longitudinal research is essential for understanding the dynamics of psychological processes. In the second section, I will overview patterns of change that are likely to emerge over time. In the third section, I will overview design and analytical issues involved in conducting longitudinal studies. In the fourth section, I will explain how design and analytical issues encountered in conducting longitudinal research can be investigated. In the fifth section, I will provide a systematic review of the research that has investigated design and analytical issues involved in conducting longitudinal research. Finally, in the sixth and seventh sections, I will, respectively, discuss some methods for modelling nonlinear change and the frameworks in which they can be used. A summary of the three simulation experiments that I conducted in my dissertation will then be provided. 
-
-## The Need to Conduct Longitudinal Research
-
-Longitudinal designs provide several advantages over cross-sectional designs that allow them to more accurately investigate change (e.g., temporal precedence, testing reverse causality). Unfortunately, even though longitudinal studies often produce results that differ from those of cross-sectional studies, researchers commonly discuss the results of cross-sectional studies as if they have been obtained with a longitudinal design. One example of the assumption of equivalence between cross-sectional and longitudinal findings comes from the large number of studies employing mediation analysis. Given that mediation is used to understand chains of causality in psychological processes [@baron1986], it would thus make sense to pair mediation analysis with a longitudinal design because understanding causality, after all, requires temporal precedence. Unfortunately, the majority of studies that have used mediation analysis have done so using cross-sectional designs---with estimates of approximately 90% [@maxwell2007] and 84% [@mitchell2013]---and often discuss the results as if they are longitudinal. Investigations into whether mediation results remain equivalent across cross-sectional and longitudinal designs have repeatedly concluded that using mediation analysis on cross-sectional data can return different, and sometimes completely opposite, results from using it on longitudinal data [@cole2003; @maxwell2007; @maxwell2011; @mitchell2013; @olaughlin2018]. Therefore, mediation analyses based on cross-sectional analyses may be misleading. 
-
-The non-equivalence of cross-sectional and longitudinal results that occurs with mediation analysis is, unfortunately, not due to a specific set of circumstances that only arise with mediation analysis, but a consequence of a broader systematic cause that affects the results of many analyses. The concept of ergodicity explains why cross-sectional and longitudinal analyses seldom yield similar results. To understand ergodicity, it is first important to realize that variance is central to many statistical analyses---correlation, regression, factor analysis, and mediation are some examples. Thus, if variance remains unchanged across cross-sectional and longitudinal data sets, then analyses of either data set would return the same results. Importantly, variance only remains equal across cross-sectional and longitudinal data sets if two conditions put forth by ergodic theory are satisfied [homogeneity and stationarity\; @molenaar2004; @molenaar2009]. If these two conditions are met, then a process is said to be ergodic. Unfortunately, the two conditions required for ergodicity are highly unlikely to be satisfied and so cross-sectional findings will frequently deviate from longitudinal findings (for a detailed discussion, see Appendix \ref{ergodicity}). 
-
-Given that cross-sectional and longitudinal analyses are, in general, unlikely to return equivalent findings, it is unsurprising that several investigations in organizational research---and psychology as a whole---have found these analyses to return different results. Beginning with an example from @curran2011, heart attacks are less likely to occur in people who exercise regularly (longitudinal finding), but more likely to happen when exercising (cross-sectional finding). Correlational studies find differences in correlation magnitudes between cross-sectional and longitudinal data sets [for a meta-analytic review, see @nixon2011; @fisher2018].\footnote{Note that \textcite{fisher2018} also found the variability of longitudinal correlations to be considerably larger than the variability of cross-sectional correlations.} Moving on to perhaps the most commonly employed analysis in organizational research of mediation, several articles have highlighted that cross-sectional data can return different, and sometimes completely opposite, results than those obtained from longitudinal data [@cole2003; @maxwell2007; @maxwell2011; @olaughlin2018]. Factor analysis is perhaps the most interesting example: The well-documented five-factor model of personality seldom arises when analyzing person-level data consisting of personality measurements over 90 consecutive days [@hamaker2005]. Therefore, cross-sectional analyses are rarely equivalent to longitudinal analyses. 
-
-With longitudinal analyses often producing results that differ from those of cross-sectional analyses, it is paramount that longitudinal designs be used to more accurately understand change. Fortunately, technological advancements have allowed researchers to more easily conduct longitudinal research in two ways. First, the use of the experience sampling method [@beal2015] in conjunction with modern information transmission technologies---whether through phone applications or short message services---allows data to often be sampled over time with relative ease. Second, the development of longitudinal analyses (along with their integration in commonly used software) that enable person-level data to be modelled such as multilevel models [@raudenbush2002], growth mixture models [@wang2007], and dynamic factor analysis [@ram2013] provide researchers with avenues to explore the temporal dynamics of psychological processes. With one recent survey estimating that 43.3% of mediation studies (26 of 60 studies) used a longitudinal design [@olaughlin2018], it appears that the prevalence of longitudinal research has increased from the 9.5% [@roe2008] and 16.3% [@mitchell2013] values estimated at the beginning of the 21^st^ century. Although the frequency of longitudinal research appears to have increased over the past 20 years, several avenues exist where the quality of longitudinal research can be improved, and in my dissertation, I focus on investigating these avenues.  
-
-
-## Understanding Patterns of Change That Emerge Over Time
-
-Change can occur in many ways over time. One pattern of change commonly assumed to occur over time is that of linear change. When change follows a linear pattern, the rate of change over time remains constant. Unfortunately, a linear pattern places demanding restrictions on the possible trajectories of change. If change were to follow a linear pattern, then any pauses in change (or plateaus) or changes in direction could not occur: Change would simply grow over time. Unfortunately, effect sizes have been shown to diminish over time after peaking [for meta-analytic examples, see @cohen1993; @griffeth2000; @hom1992; @riketta2008; @steel1984; @steel1990]. Moreover, many variables display cyclic patterns of change over time, with mood [@larsen1990], daily stress [@bodenmann2010], and daily drinking behaviour [@huh2015] as some examples. Therefore, change over time is unlikely to follow a linear pattern.
-
-A more realistic pattern of change to occur over time is a nonlinear pattern [for a review, see @cudeck2007]. Nonlinear change allows the rate of change to be nonconstant; that is, change may occur more rapidly during certain periods of time, stop altogether, or reverse direction. When looking at patterns of change observed across psychology, several examples of nonlinear change have been found in the declining rate of speech errors throughout child development [@burchinal1991], rates of forgetting [@murre2015], development of habits [@fournier2017], and the formation of opinions [@xia2020]. Given that nonlinear change appears more likely than linear change, my dissertation will assume change over time to be nonlinear. 
-
-
-## Challenges Involved in Conducting Longitudinal Research
-
 Conducting longitudinal research presents researchers with several challenges. Many challenges are those from cross-sectional research only amplified [for a review, see @bergman1993].\footnote{It should be noted that conducting a longitudinal study does alleviate some issues encountered in conducting cross-sectional research. For example, taking measurements over multiple time points likely reduces common method variance \parencites{podsakoff2003}[for an example, see ][]{ostroff2002}.} For example, greater efforts have to be made to prevent missing data which can increase over time [@newman2008; @dillman2014]. Likewise, the adverse effects of well-documented biases such as demand characteristics [@orne1962] and social desirability [@nederhof1985] have to be countered at each time point. Outside of challenges shared with cross-sectional research, conducting longitudinal research also presents new challenges. Analyses of longitudinal data have to consider complications such as how to model error structures [@grimm2010a], check for measurement non-invariance over time [the extent to which a construct is measured with the same measurement model over time\; @mellenbergh1989], and how to center/process data to appropriately answer research questions [@enders2007; @wang2015]. 
 
-
-Although researchers must contend with several issues in conducting longitudinal research, three issues are of particular interest in my dissertation. The first issue concerns how many measurements to use in a longitudinal design. The second issue concerns how to space the measurements. The third issue focuses on how much error is incurred if the time structuredness of the data is overlooked. The sections that follow will review each of these issues. 
-
-### Number of Measurements
-
-Researchers have to decide on the number of measurements to include in a longitudinal study. Although using more measurements increases the accuracy of results---as noted in the results of several studies [e.g., @coulombe2016; @timmons2015; @finch2017; @fine2019]---taking additional measurements often comes at a cost that a researcher may be unable to absorb given a limited budget. One important point to mention is that a researcher designing a longitudinal study must take at least three measurements to allow a reliable estimate of change and, perhaps more importantly, to allow a nonlinear pattern of change to be modelled [@ployhart2010]. In my dissertation, I hope to determine whether an optimal number of measurements exists when modelling a nonlinear pattern of change. 
-
-### Spacing of Measurements
-
-Additionally, a researcher must decide on the spacing of measurements in a longitudinal study. Although discussions of measurement spacing often recommend that researchers use theory and previous studies to determine measurement spacing [@mitchell2001; @cole2003; @collins2006; @dormann2014; @dormann2015], organizational theories seldom delineate periods of time over which processes unfold, and so the majority of longitudinal research uses intervals of convention and/or convenience to space measurements [@mitchell2001; @dormann2014]. Unfortunately, using measurement spacings that do not account for the temporal pattern of change of a psychological process can lead to inaccurate results [e.g., @chen2014]. As an example, @cole2009 show how correlation magnitudes are affected by the choice of measurement spacing intervals. In my dissertation, I hope to determine whether an optimal measurement spacing schedule exists when modelling a nonlinear pattern of change. 
-
-### Time Structuredness
-
-Last, and perhaps most pernicious, latent variable analyses of longitudinal data are likely to incur error from an assumption they make about data collection conditions. Latent variable analyses assume that, across all collection points, participants provide their data at the same time. Unfortunately, such a high level of regularity in the response patterns of participants is unlikely: Participants are more likely to provide their data over some period of time after a data collection window has opened. As an example, consider a study that collects data from participants at the beginning of each month. If participants respond with perfect regularity, then they would all provide their data at the exact same time (e.g., noon on the second day of each month). If the participants respond with imperfect regularity, then they would provide their data at different times after the beginning of each month. The regularity of response patterns observed across participants in a longitudinal study determines the time structuredness of the data and the sections that follow will provide an overview of time structuredness. 
-
-#### Time-Structured Data
-
-Many analyses assume that data are *time structured*: Participants provide data at the same time at each collection point. By assuming time-structured data, an analysis can incur error because it will map time intervals of inappropriate lengths onto the time intervals that occurred between participant's responses.\footnote{It should be noted that, although seldom implemented, analyses can be accessorized to handle time-unstructured data by using definition variables \parencites{mehta2000}{mehta2005}.} As an example of the consequences of incorrectly assuming data to be time structured, consider a study that assessed the effects of an intervention on the development of leadership by collecting leadership ratings at four time points each separated by four weeks [@day2011]. The employed analysis assumed time-structured data; that is, each each participant provided ratings on the same day---more specifically, the exact same moment---each time these ratings were collected. Unfortunately, it is unlikely that the data collected from participants were time structured: At any given collection point, some participants may have provided leadership ratings at the beginning of the week, while others may only provide ratings two weeks after the survey opened. Importantly, ratings provided two weeks after the survey opened were likely influenced by changes in leadership that occurred over the two weeks. If an analysis incorrectly assumes time-structured data, then it assumes each participant has the same response pattern and, therefore, will incorrectly attribute the amount of time that elapses between most participants' responses. For instance, if a participant only provides a leadership rating two weeks after having received a survey (and six weeks after providing their previous rating), then using an analysis that assumes time-structured data would incorrectly assume that each collection point of this participant is separated by four weeks (the interval used in the experiment) and would, consequently, model the observed change as if it had occurred over four weeks. Therefore, incorrectly assuming data to be time structured leads an analysis to overlook the unique response rates of participants across the collection points and, as a consequence, incur error [@mehta2000; @mehta2005; @coulombe2016]. 
-
-#### Time-Unstructured Data
-
-Conversely, other analyses assume that data are *time unstructured*: Participants provide data at different times at each collection point. Given the unlikelihood of one response pattern describing the response rates of all participants in a given study, the data obtained in a study are unlikely to be time structured. Instead, and because participants are likely to exhibit unique response patterns in their response rates, data are likely to be time unstructured. One way to conceptualize the distinction between time-structured and time-unstructured data is on a continuum. On one end of the continuum, participants all provide data with identical response patterns, thus giving time-structured data. When participants exhibit unique response patterns, the resulting data are time unstructured, with the extent of time-unstructuredness depending on the average uniqueness of all response patterns. For example, if data are collected at the beginning of each month and participants only have one day to provide data at each time point, then the resulting data will have a low amount of time structuredness because response patterns can only differ from each other over the course of one day. Alternatively, if data are collected at the beginning of each month and participants have 30 days to provide data at each time point, then the resulting data will have a high amount of time structuredness because response patterns can differ from each other over the course of 30 days. Therefore, the continuum of time struturedness has time-structured data on one end and time-unstructured data with long response windows on another end. In my dissertation, I hope to determine how much error is incurred when time-unstructured data of varying degrees are assumed to be time structured. 
-
-### Summary
-
-In summary, researchers must contend with several issues when conducting longitudinal research. In addition to contending with issues encountered in conducting cross-sectional research, researchers must contend with new issues that arise from conducting longitudinal research. Three issues of particular importance in my dissertation are the number of measurements, the spacing of measurements, and incorrectly assuming time-unstructured data to be time structured. These issues will be serve as a basis for a systematic review of the simulation literature. 
-
-
-## Using Simulations To Assess Model Performance
-
-In the next section, I will present the results of a systematic review of the literature that has investigated the issues of measurement number, measurement spacing, and time structuredness. Before presenting the results of the systematic review, I will provide an overview of the Monte Carlo method used to investigate the issues involved in conducting longitudinal research.  
-
-To understand how the effects of longitudinal issues on model performance can be investigated, the inferential method commonly employed in psychological research will first be reviewed with an emphasis on its shortcomings (see Figure \ref{fig:MonteCarlo-comparison}). Consider an example where a researcher wants to understand how sampling error affects the accuracy with which a sample mean ($\bar{x}$) estimates a population mean ($\upmu$). Using the inferential method, the researcher samples data and then estimates the population mean ($\upmu$) by computing the mean of the sampled data ($\bar{x}_1$). Because collected samples are almost always contaminated by a variety of methodological and/or statistical deficiencies (such as sampling error, measurement error, assumption violations, etc.), the estimation of the population parameter is likely to be imperfect. Unfortunately, to estimate the effect of sampling error on the accuracy of the population mean estimate ($\bar{x}_1$), the researcher would need to know the value of the population mean; without knowing the value of the population mean, it is impossible to know how much error was incurred in estimating the population mean and, as as a result, impossible to know the extent to which sampling error contributed to this error. Therefore, a study following the inferential approach can only provide estimates of population parameters.
-
-The Monte Carlo method has a different goal. Whereas the inferential method focuses on estimating parameters from sample data, the Monte Carlo method is used to understand the factors that influence the accuracy of the inferential approach. Figure \ref{fig:MonteCarlo-comparison} shows that the Monte Carlo method works in the opposite direction of the inferential approach: Instead of collecting a sample, the Monte Carlo method begins by assigning a value to at least one parameter to define a population. Many sample data sets are then generated from the defined population ($s_1, s_2, ..., s_n$) and the data from each sample are then modelled by computing a sample mean ($\bar{x}_1, \bar{x}_2, ..., \bar{x}_n$). Importantly, manipulations can be applied to the sampling and/or modelling of the data. In the current example,the population estimates of each statistical model are averaged ($\bar{\bar{x}}$) and compared to the pre-determined parameter value ($\upmu$). The difference between the average of the estimates and the known population value constitutes bias in parameter estimation (i.e., parameter bias). In the current example, the manipulation causes a systematic underestimation, on average, of the population parameter. By randomly generating data, the Monte Carlo method can estimate how a variety of methodological and statistical factors affect model performance [for a review, see @robert2010].
-
-Monte Carlo simulations have been used to evaluate the effects of a variety of methodological and statistical deficiencies for several decades. Beginning with an early use of the Monte Carlo method, @boneau1960 used it to evaluate the effects of assumption violations on the fidelity of *t*-value distributions. In more recent years, implementations of the the Monte Carlo method have shown that realistic values of sample size
-and measurement accuracy produce considerable variability in estimated correlation values [@stanley2014]. Monte Carlo simulations have also provided valuable insights into more complicated statistical analyses. In investigating more complex statistical analyses, simulations have shown that mediation analyses are biased to produce results of complete mediation because the statistical power to detect direct effects falls well below the statistical power to detect indirect effects [@kenny2014]. Given the ability of the Monte Carlo method to evaluate statistical methods, the experiments in my dissertation used it to evaluate the effects of measurement number, measurement spacing, and time structuredness on model performance.\footnote{My simulation experiments also investigated the effects of sample size and nature of change on model performance.} 
-
-## Systematic Review of Simulation Literature
-
-To understand the extent to which issues involved in conducting longitudinal research had been investigated, I conducted a systematic review of the simulation literature.
+## Figures
 
 ```{r montecarlo, echo=F}
 create_apa7_figure(orientation = "landscape", samepage = T, figure_bottom_margin = "0cm", 
                    title = "Depiction of Monte Carlo Method", figure_tag = "MonteCarlo-comparison", image_ratio = "0.7", 
-                   figure_path = "Figures/Monte_Carlo_comparison", 
+                   figure_path = "figures/Monte_Carlo_comparison", 
                    footnote = "Comparison of inferential approach with the Monte Carlo approach. The inferential approach begins with a collected sample and then estimates the population parameter using an appropriate statistical model. The difference between the estimated and population value can be conceptualized as error. Because the population value is generally unknown in the inferential approach, it cannot estimate how much error is introduced by any given methodological or statistical deficiency. To estimate how much error is introduced by any given methodological or statistical deficiency, the Monte Carlo method needs to be used, which constitutes four steps. The Monte Carlo method first defines a population by setting parameter values. Second, many samples are generated from the pre-defined population, with some methodological deficiency built in to each data set (in this case, each sample has a specific amount of missing data). Third, each generated sample is then analyzed and the population estimates of each statistical model are averaged and compared to the pre-determined parameter value. Fourth, the difference between the estimate average and the known population value defines the extent to which the missing data manipulation affected parameter estimation (the difference between the population and average estimated population value is the parameter bias).")
 ```
 
 
-
- The sections that follow will first present the method I followed in systematically reviewing the literature and then summarize the findings of the review. 
-
-### Systematic Review Methodology 
-
-I identified the following keywords through citation searching and independent reading: "growth curve", "time-structured analysis", "time structure", "temporal design", "individual measurement occasions", "measurement intervals", "methods of timing", "longitudinal data analysis", "individually-varying time points", "measurement timing", "latent difference score models", "parameter bias", and "measurement spacing". I entered these keywords entered into the PsycINFO database (on July 23, 2021) along with the word "simulation" in any field and considered any returned paper a viable ppaper (see Figure \ref{fig:prismaDiagram} for a PRISMA diagram illustrating the filtering of the reports). The search returned 165 reports, which I screened by reading the abstracts. Initial screening led to the removal of 60 reports because they did not contain any simulation experiments. Of the remaining 105 papers, I removed 2 more papers  because they could not be accessed [@stockdale2007; @tiberio2008]. Of the remaining 103 identified simulation studies, I deemed a paper as relevant if it investigated the effects of any design and/or analysis factor related to conducting longitudinal research (i.e., number of measurements, spacing of measurements, and/or time structuredness) and did so using the Monte Carlo simulation method. Of the remaining 103 studies, I removed 89 studies because they did not meet the inclusion criteria, leaving fourteen studies to be included in the review. I also found an additional 3 studies through citation searching, giving a total of 17 studies. 
-
-The findings of my systematic review are summarized in Tables \ref{tab:systematicReviewCount}--\@ref(tab:systematicReview). Tables \ref{tab:systematicReviewCount}--\@ref(tab:systematicReview) differ in one way: Table \ref{tab:systematicReviewCount} indicates how many studies investigated each effect, whereas Table \@ref(tab:systematicReview) provides the reference of each study and detailed information about each study's method. Otherwise, all other details of Tables \ref{tab:systematicReviewCount}--\@ref(tab:systematicReview) are identical. The first column lists the longitudinal design factor (alongside with sample size) and the corresponding two- and three-way interactions. The second and third columns list whether each effect has been investigated with linear and nonlinear patterns of change, respectively. Shaded cells indicate effects that have not been investigated, with cells shaded in light grey indicating effects that have not been investigated with linear patterns of change and cells shaded in dark grey indicating effects that have not been investigated with nonlinear patterns of change.\footnote{Table \ref{tab:systematicReview} lists the effects that each study (identified by my systematic review) investigated and notes the following methodological details (using superscript letters and symbols): the type
-of model used in each paper, assumption and/or manipulation of complex error structures
-(heterogeneous variances and/or correlated residuals), manipulation of missing data,
-and/or pseudo-time structuredness manipulation. Across all 17 simulation studies, 5 studies (29\%) assumed complex error structures \parencites{gasimova2014}{liu2021}{liu2015}{miller2017}{murphy2011}, 1 study (6\%) manipulated missing data \parencite{fine2019}, and 2 studies (12\%) contained a pseudo-time structuredness manipulation \parencites{fine2019}{fine2020}. Importantly, the pseudo-time structuredness manipulation used in \textcite{fine2019} and \textcite{fine2020} differed from the manipulation of time structuredness used in the current experiments \parencites[and from previous simulation experiments of][]{coulombe2016}{miller2017} in that it randomly generated longitudinal data such that a given person could provide all their data before another person provided any data.}
-
-### Systematic Review Results 
-
-Although previous research appeared to sufficiently fill some cells of Table \ref{tab:systematicReviewCount}, two patterns suggest that arguably the most important cells (or effects) have not been investigated. First, it appears that simulation research has invested more effort in investigating the effects of longitudinal design factors with linear patterns than with nonlinear patterns of change. In counting the number of effects that remain unaddressed with linear and nonlinear patterns of change, a total of five cells (or effects) have not been investigated, but a total of seven cells have not been investigated with nonlinear patterns of
-
-
-```{r prisma, echo=F}
-create_apa7_figure(orientation = "landscape", samepage = T, figure_bottom_margin = "", 
-                   title = "PRISMA Diagram Showing Study Filtering Strategy", 
-                   figure_tag = "prismaDiagram", image_ratio = "0.7", 
-                   figure_path = "Figures/prisma_diagram", 
-                   footnote = "PRISMA diagram for systematic review of simulation research that investigates longitudinal design and analysis factors.")
-```
-
-
+## Tables
 
 ```{r systematicReviewCount, echo=F}
 table_1 <-  data.frame('Effect' = c('\\textbf{Main effects}', 'Number of measurements (NM)', 'Spacing of measurements (SM)', 'Time structuredness (TS)', 'Sample size (S)', 
@@ -443,335 +237,3 @@ kbl(x = table_1, booktabs = TRUE, format = 'latex', longtable = TRUE,
            symbol = c('Manipulated missing data. $^\\\\mho$ Assumed complex error structure (heterogeneous variances and/or correlated residuals). $^\\\\triangledown$ Contained pseudo-time structuredness manipulation.')) %>%
   landscape(margin = '2.54cm') 
 ```
-
-\noindent change. Given that change over time is more likely to follow a nonlinear than a linear pattern [for a review, see @cudeck2007], it could be argued that most simulation research has investigated the effect of longitudinal design factors under unrealistic conditions. 
-
-Second, all the cells corresponding to the three-way interactions with nonlinear patterns of change have not been investigated (Cells 7, 9, 10, and 12 in Table \ref{tab:systematicReviewCount}), meaning that almost no study has conducted a comprehensive investigation into measurement timing. Given that longitudinal research is needed to understand the temporal dynamics of psychological processes---as suggested by ergodic theory [@molenaar2004]---it is necessary to understand how longitudinal design and analysis factors interact with each other (and with sample size) in affecting the performance of longitudinal models. Given that no simulation study identified in my systematic review conducted a comprehensive investigation into the effects of longitudinal design and analysis factors on modelling nonlinear change, I designed simulation studies to address these gaps. 
-
-
-## Methods of Modelling Nonlinear Patterns of Change Over Time {#modelling-change}
-
-Because my simulation experiments assumed change over time to be nonlinear, it is important to provide an overview of how nonlinear change can be modelled. On this note, I will provide an overview of two commonly employed methods for modelling nonlinear change: 1) the polynomial approach and 2) the nonlinear function approach.\footnote{It should be noted that nonlinear change can be modelled in a variety of ways, with latent change score models \parencite[e.g., ][]{orourke2021} and spline models \parencite[e.g., ][]{fine2020} offering some examples.}^,^\footnote{The definition of a nonlinear function is mathematical in nature. Specifically, a nonlinear function contains at least one parameter that exists in its corresponding partial derivative (at any order). For example, in the logistic function $\uptheta + \frac{\upalpha - \uptheta}{1 + exp^(\frac{\upbeta - t}{\upgamma}}$ is nonlinear because $\upbeta$ exists in $\frac{\partial y}{\partial \upbeta}$ (in addition to $\upgamma$ existing in its corresponding partial derivative). The $n^{th}$ order polynomial function of $y = a + bx + cx^2 + ... + nx^n$ is linear because the partial derivatives with respect to any of the parameters (i.e., $1, x^2, ..., x^n$) never contain the associated parameter.} Importantly, the simulation experiments in my dissertation will use the nonlinear function approach to model nonlinear change. 
-
-
-```{r nonlinear-plot-code, echo=F, include=F}
-#regress outcome_value on time using the nonlinear function
-nonlin_data <- read_csv(file = 'data/nonlin_data.csv')
-nonlin_output <- round(data.frame(summary(nls(
-  formula = obs_score ~ SSfpl(input = measurement_day, A = theta, B = alpha, xmid = beta, scal = gamma), 
-  data = nonlin_data, 
-  control = nls.control(maxiter = 100)))$coefficients), digits = 3)
-nonlin_output$parameter <- rownames(nonlin_output)
-#extract coefficient values
-theta <- as.numeric(nonlin_output$Estimate[nonlin_output$parameter =='theta'])
-alpha <- round(nonlin_output$Estimate[nonlin_output$parameter == 'alpha'], 2)
-beta <- round(nonlin_output$Estimate[nonlin_output$parameter == 'beta'])
-gamma <- round(nonlin_output$Estimate[nonlin_output$parameter == 'gamma'])
-#AIC_nonlin <- formatC(round(AIC(nls(formula = outcome_value ~
-#SSdlf(time = time, asym = alpha, a2 = theta, xmid = beta, scal = gamma),
-#data = pos_responders)), digits = 2), format = 'f', digits = 2)
-```
-
-```{r polynomial-vs-nonlinear-plot, echo=F, include=F}
-#create function to roun to two decimal places
-round_two_decimals <- function(number) {
-  
-  rounded_number <- as.numeric(formatC(round(number, digits = 2), format = 'f', digits = 3))
-  return(rounded_number)
-}
-nonlin_data <- read_csv(file = 'data/nonlin_data.csv')
-#create nonlin data 
-theta <- 3.00
-alpha <- 3.32
-beta <- 180.00
-gamma <- 20.00 
-day <- seq(from = 1, to = 360, by = 0.1)
-scores <- theta + (alpha - theta)/(1 + exp((beta - day)/gamma))
-nonlin_data <- data.frame('measurement_day' = day, 
-                          'score' = scores)
-#regress outcome_value on time using the linear function
-polynomial_output <- data.frame(summary(nls(
-  formula = score ~ a + b*measurement_day + c*measurement_day^2 + d*measurement_day^3, 
-  data = nonlin_data,
-  start = list(a = 1, b = 1, c = 1, d = 0.5)))$coefficients)
-polynomial_output$parameter <- rownames(polynomial_output)
-#extract coefficient values & AIC value
-a <- round(polynomial_output$Estimate[1], 2)
-b <- -2.44e-3 #round(polynomial_output$Estimate[polynomial_output$parameter == 'b'], 4)
-c <- 2.58e-5  #round(polynomial_output$Estimate[polynomial_output$parameter == 'c'], 5)
-d <- -4.77e-8 #round(polynomial_output$Estimate[polynomial_output$parameter == 'd'], 8)
-#AIC_polynomial <- formatC(round(AIC(nls(
-#  formula = obs_score ~ a + b*measurement_day + c*measurement_day^2 + d*measurement_day^3, 
-#  data = nonlin_data,
-#  start = list(a = 1, b = 1, c = 1, d = 0.5))), 2), format = 'f', digits = 3)
-measurement_day <- seq(from = 1, to = 360, by = 1)
-poly_nonlin_pred_scores <- data.frame('measurement_day' = measurement_day, 
-                                      'pred_score' = a + b*measurement_day + c*measurement_day^2 + d*measurement_day^3)
-font_size <- 15
-title_font <- 45
-axis_text_size <- 30
-axis_title_size <- 40
-poly_pred_plot <- ggplot(poly_nonlin_pred_scores, aes(x = measurement_day, y = pred_score)) +
-  geom_line(size = 2) +
-  theme_classic(base_family = 'Helvetica') +
-  scale_y_continuous(limits = c(2.9, 3.5), breaks = seq(from = 3, to = 3.5, by = 0.25)) +
-  scale_x_continuous(breaks = seq(from = 0, to = 360, by = 60), limits = c(0, 360)) +
-  labs(x = 'Day', y = 'Predicted Value', size = 16) +
-  ggtitle(label = 'A: Response Pattern Predicted \n by Polynomial (Linear) Function') +
-  annotate(geom = 'text', x = 100, y = 3.45, label = 'y == italic(a) + italic(b)*x + italic(c)*x^2 + italic(d)*x^3',
-           parse = T, family = 'Helvetica', size = font_size) +
-  annotate(geom = 'text', x = 45, y = 3.35, label = paste('italic(a) == ', a), parse = T, family = 'Helvetica', size = font_size) +
-  annotate(geom = 'text', x = 72, y = 3.30, label = paste('italic(b) == ', b), parse = T, family = 'Helvetica', size = font_size) +
-  annotate(geom = 'text', x = 72, y = 3.25, label = paste('italic(c) == ', c), parse = T, family = 'Helvetica', size = font_size) +
-  annotate(geom = 'text', x = 80, y = 3.20, label = paste('italic(d) == ', d), parse = T, family = 'Helvetica', size = font_size) +
-  #annotate(geom = 'text', x = 10, y = 1.70, label = paste('AIC == ', AIC_lin), parse = T) +
-  theme(plot.margin = unit(c(0, 1, 0.1, 0.1), units="cm"), 
-        plot.title = element_text(face='bold', size = title_font,  hjust = 0), 
-        axis.title = element_text(size = axis_title_size), 
-        axis.text = element_text(size = axis_text_size, colour = 'black'), 
-        plot.tag = element_text(face = 'bold'), 
-        axis.line = element_line(size = 2))
-nonlin_pred <- data.frame('measurement_day' =  measurement_day, 
-                          'pred_score' = theta + (alpha - theta)/(1 + exp((beta - measurement_day)/gamma)))
-nonlin_function_plot <- ggplot(nonlin_pred, aes(x = measurement_day, y = pred_score)) + 
-  geom_line(size = 2) +
-  theme_classic(base_family = 'Helvetica') +
-  scale_y_continuous(limits = c(2.90, 3.5), breaks = seq(from = 3, to = 3.5, by = .25)) +
-  scale_x_continuous(breaks = seq(0, 360, by = 60), limits = c(0, 360)) +
-  labs(x = 'Day', y = 'Predicted Value', size = 16, tag = 'B') +
-  ggtitle(label = 'B: Response Pattern Predicted \n by Logistic (Nonlinear) Function') +
-  annotate(geom = 'text', x = 80, y = 3.45, label = 'y == theta + frac(alpha - theta, 1 + e^(frac(beta-time, gamma)))', parse = T, size = font_size) +
-  #beta
-  annotate(geom = 'text', x = 40, y = 3.35, label = paste('theta == `3.00`'), parse = T, size = font_size) +
-  annotate(geom = 'text', x = 40, y = 3.30, label = paste('alpha == ', alpha), parse = T, size = font_size) + 
-  annotate(geom = 'text', x = 55, y = 3.25, label = paste('beta == `180.00`'), parse = T, size = font_size) + 
-  annotate(geom = 'text', x = 50, y = 3.20, label = paste('gamma == `20.00`'), parse = T, size = font_size) + 
-  theme_classic(base_family = 'Helvetica', base_size = 13) +
-  theme(plot.margin = unit(c(0, 1, 0.1, 0.1), units="cm"), 
-        plot.title = element_text(face='bold', size = title_font,  hjust = 0), 
-        axis.title = element_text(size = axis_title_size), 
-        axis.text = element_text(size = axis_text_size, colour = 'black'), 
-        plot.tag = element_text(face = 'bold'), 
-        axis.line = element_line(size = 2))
-interpretation_plot <- ggarrange(poly_pred_plot, nonlin_function_plot, ncol = 2)
-ggsave(plot = interpretation_plot, filename = 'Figures/polynomial_vs_nonlinear_plot.pdf', width = 24, height = 12)
-```
-
-Consider an example where an organization introduces a new incentive system with the goal of increasing the motivation of its employees. To assess the effectiveness of the incentive system, employees provide motivation ratings every month over a period of 360 days. Over the 360-day period, the motivation levels of the employees increase following an s-shaped pattern of change over time. One analyst decides to model the observed change using a *polynomial function* shown below in Equation \ref{eq:polynomial}: 
-
-```{=tex}
-\begin{align}
-  y = \mathit{a} + \mathit{b}x + \mathit{c}x^2 + \mathit{d}x^3.
-  (\#eq:polynomial)
-\end{align}
-```
-
-\noindent A second analyst decides to model the observed change using a *logistic function* shown below in Equation \ref{eq:logistic1}:
-
-```{=tex}
-\begin{align}
-  y = \uptheta + \frac{\upalpha - \uptheta}{1 + e^{\frac{\upbeta -time}{\upgamma}}}
-  (\#eq:logistic1)
-\end{align}
-```
-
-\noindent  Figure \ref{fig:polynomial-vs-logistic}A shows the response pattern predicted by the polynomial function of Equation \ref{eq:polynomial} with the estimated values of each parameter ($a$, $b$, $c$, and $d$) and Figure \ref{fig:polynomial-vs-logistic}B shows the response pattern predicted by the logistic function (Equation \ref{eq:logistic1}) along with the values estimated for each parameter ($\uptheta$, $\upalpha$, $\upbeta$, and $\upgamma$). Although the logistic and polynomial
-
-```{=tex}
-\begin{apaFigure}
-[portrait]
-[samepage]
-[0cm]
-{Response Patterns Predicted by Polynomial (Equation \ref{eq:polynomial}) and Logistic (Equation \ref{eq:logistic1}) Functions}
-{polynomial-vs-logistic}
-{0.26}
-{Figures/polynomial_vs_nonlinear_plot}
-{Panel A: Response pattern predicted by the polynomial function of Equation @ref(eq:polynomial). Panel B: Response pattern predicted by the logistic function of Equation @ref(eq:logistic1).}
-\end{apaFigure}
-```
-
-
-\noindent functions predict nearly identical response patterns, the parameters of the logistic function have the following meaningful interpretations (see Figure \ref{fig:combined_plot}):
-
--   $\uptheta$ specifies the value at the first plateau (i.e., the starting value), and so is called the *baseline* parameter (see Figure \ref{fig:combined_plot}A).
--   $\upalpha$ specifies the value at the second plateau (i.e., the ending value), and so is called the the *maximal elevation* parameter (see Figure \ref{fig:combined_plot}B).
--   $\upbeta$ specifies the number of days required to reach half the difference between the first and second plateau (i.e., the midway point), and so is called the *days-to-halfway-elevation* parameter (see Figure \ref{fig:combined_plot}C). 
--   $\upgamma$ specifies the number of days needed to move from the midway point to approximately 73% of the difference between the starting and ending values (i.e., satiation point), and so is called the *triquarter-halfway delta* parameter (see Figure \ref{fig:combined_plot}D).
-
-```{r logistic-interpretation-plot, eval=F, include=F}
-#setup variables for logistic curve 
-time <- seq(from = 1, to = 360, by = 1)
-theta <- baseline <- 3.00
-alpha <- maximal_elevation <- 3.32
-beta <- 180
-gamma <- 20
-measurement_day <- seq(from = 1, to = 360, by =1)
-curve_values <- theta + (alpha - theta)/(1 + exp((beta - measurement_day)/gamma))
-logistic_data <- data.frame('parameter' = 
-                              factor(c(rep('bold(A:~Baseline~(theta))', times = length(curve_values)), 
-                                       rep('bold(B:~Maximal~Elevation~(alpha))', times = length(curve_values)), 
-                                       rep('bold(C:~Days~to~Halfway~Elevation~(beta))', times = length(curve_values)),
-                                       rep("bold(D:~`Triquarter-Halfway`~'Delta'~(gamma))",  times = length(curve_values)))), 
-                                       
-                       'day' = rep(measurement_day, times = 4), 
-                       'curve_value' = rep(curve_values, times = 4))
-#df for points 
-point_df <- data.frame('day' = c(0, beta, beta + gamma, 360), 
-                       'curve_value' = c(3.000042, 3.16, 3.233939, 3.319961))
-#h_line data
-hline_df <- data.frame('parameter' = c('bold(A:~Baseline~(theta))', 'bold(B:~Maximal~Elevation~(alpha))'), 
-                       'y' = c(3.000042, 3.319961), 
-                       'y_end' = c(3.000042, 3.319961), 
-                       'x' = c(0, 0), 
-                       'x_end' = c(360, 360))
-#v_line data
-vline_df <- data.frame('parameter' = c('bold(C:~Days~to~Halfway~Elevation~(beta))',
-                                       "bold(D:~`Triquarter-Halfway`~'Delta'~(gamma))"), 
-                       'x' = c(beta, beta+gamma), 
-                       'x_end' = c(beta, beta+gamma), 
-                       'y' = c(3.16, 3.233939), 
-                       'y_end' = c(2.98, 2.98))
-#arrow data
-arrow_data <- data.frame('parameter' = c('bold(A:~Baseline~(theta))', 
-                                         'bold(B:~Maximal~Elevation~(alpha))',
-                                         'bold(C:~Days~to~Halfway~Elevation~(beta))', 
-                                         "bold(D:~`Triquarter-Halfway`~'Delta'~(gamma))"), 
-                         
-                         'ymin' = c(3.0, 3.32, 3.16, 3.233939), 
-                         'ymax' = c(3.0, 3.32, 3.16, 3.233939), 
-                         'xmin' = c(400, 400, 135, 145), 
-                         'xmax' = c(370, 370, 170, 190)) 
-#equation data 
-equation_data <- data.frame(label = 'y == theta + frac(alpha - theta, 1 + e^(frac(beta-time, gamma)))',
-                            'x' = 80, 
-                            'y' = 3.285) 
-#text data
-text_data <- data.frame('parameter' = c('bold(A:~Baseline~(theta))', 
-                                         'bold(B:~Maximal~Elevation~(alpha))',
-                                         'bold(C:~Days~to~Halfway~Elevation~(beta))', 
-                                         "bold(D:~`Triquarter-Halfway`~'Delta'~(gamma))"), 
-                        
-                        'label' = c('Baseline \n(y-axis)', 
-                                    'Maximal \nelevation \n(y-axis)', 
-                                    'Days to halfway \nelevation (x-axis)',
-                                    'Triquarter-halfway \ndelta (x-axis)'), 
-                        'x' = c(450, 450, 70, 70),
-                        'y' = c(3.05, 3.2859, 3.145, 3.218))
-#text data
-param_data <- data.frame('parameter' = c('bold(A:~Baseline~(theta))', 
-                                         'bold(B:~Maximal~Elevation~(alpha))',
-                                         'bold(C:~Days~to~Halfway~Elevation~(beta))', 
-                                         "bold(D:~`Triquarter-Halfway`~'Delta'~(gamma))"), 
-                        
-                        'label' = c('theta == `3.00`', 
-                                    'alpha == `3.32`', 
-                                    'beta == `180.00`',
-                                    'gamma == `20.00`'), 
-                        'x' = c(450, 450, 70, 70),
-                        'y' = c(3.000042, 3.227, 3.09, 3.165))
-font_size <- 20
-title_font <- 60
-axis_text_size <- 50
-axis_title_size <- 60
-parameter_explanation_plot <- ggplot(logistic_data, aes(x = day, y = curve_value)) + 
-  geom_line(size = 2.5) + 
-  geom_point(data = point_df, size = 10) + 
-  scale_y_continuous(name = 'Curve Value', breaks = c(3, 3.16, 3.23, 3.32), limits = c(2.98, 3.32), expand = c(0, 0.005))  + 
-  theme_classic(base_family = 'Helvetica') + 
-  
-  #text
-  geom_text(data = equation_data, inherit.aes = F, mapping = aes(x = x, y = y, label = label), parse = T, size = font_size,fontface = 'bold') + 
-  geom_text(data = text_data, inherit.aes = F, mapping = aes(x = x, y = y, label = label), size = font_size,  fontface = 'bold') + 
-  geom_text(data = param_data, inherit.aes = F, mapping = aes(x = x, y = y, label = label), parse = T, size = font_size,  fontface = 'bold') + 
-  #arrows
-  geom_segment(data = arrow_data, inherit.aes = F, mapping = aes(x = xmin, xend = xmax, y = ymin, yend = ymax), 
-               arrow = arrow(length = unit(0.7, 'cm')), size = 2.5)  + 
-  
-    #vertical lines 
-  geom_segment(data = vline_df, mapping = aes(x = x, y = y, xend = x_end, yend = y_end), linetype = 2, size = 2) + 
-  geom_segment(data = hline_df, mapping = aes(x = x, y = y, xend = x_end, yend = y_end), linetype = 2, size = 2)  + 
-  nonlinSimsAnalysis:::facet_wrap_custom( ~ parameter, scales = "free", ncol = 2, nrow = 2 , 
-                     labeller = label_parsed,  
-                            scale_overrides = list(
-                            nonlinSimsAnalysis:::scale_override(1,
-                              scale_x_continuous(
-                                
-                                breaks = c(0, 60, 120, 180, 240, 360), 
-                                limits = c(0, 470))), 
-                        
-                             nonlinSimsAnalysis:::scale_override(which = 2,
-                              scale_x_continuous(
-                                breaks = c(0, 60, 120, 180, 240, 360), 
-                                limits = c(0, 470))), 
-                        
-                            
-                            nonlinSimsAnalysis:::scale_override(which = 3,
-                               scale_x_continuous(
-                                breaks = c(0, 60, 120, 180, 240, 360), 
-                                limits = c(0, 360))), 
-                        
-                         
-                            nonlinSimsAnalysis:::scale_override(4,
-                              scale_x_continuous(
-                                   breaks = c(0, 60, 120, 200, 240, 360), 
-                                limits = c(0, 360))))) + 
-  
-  labs( x = 'Day') + 
-  
-  theme(strip.text.x = element_text(face = 'bold', hjust = 0, size = title_font, margin = unit(c(t = 0, r = 0, b = 1, l = 0), "cm")),
-        strip.background = element_rect(fill = "white", color = "white"), 
-        #axis details
-        axis.text = element_text(size = axis_text_size, color = 'black'),
-         axis.title.y = element_text(margin = margin(t = 0, r = 1, b = 0, l = 0, unit = 'cm')), 
-        axis.title = element_text(size = title_font),
-        axis.line = element_line(size = 2),
-        axis.ticks.length = unit(x = 1, units = 'cm'), 
-        axis.title.x = element_text(margin = unit(c(1, 0, 0, 0), "cm")),
-        axis.ticks = element_line(size = 1, colour = 'black'),
-        
-      panel.spacing.y = unit(x = 2, units = 'cm'),
-      panel.spacing.x = unit(x = 2, units = 'cm'))
-#create PDF of faceted plot
-set_panel_size(p = parameter_explanation_plot, height = unit(x = 32, units = 'cm'),
-                 width = unit(x = 50, units = 'cm'),
-                 file =  'Figures/parameter_explanation_plot.pdf')
-```
-
-```{=tex}
-\begin{apaFigure}
-[landscape]
-[samepage]
-[0cm]
-{Description Each Parameters Logistic Function (Equation \ref{eq:logistic1}) Functions}
-{combined_plot}
-{0.17}
-{Figures/parameter_explanation_plot}
-{Panel A: The baseline parameter ($\uptheta$) sets the starting value of the of curve, which in the current example has a value of 3.00 ($\uptheta$ = 3.00). Panel B: The maximal elevation parameter ($\upalpha$) sets the ending value of the curve, which in the current example has a value of 3.32 ($\upalpha$ = 3.32). Panel C: The days-to-halfway elevation parameter ($\upbeta$) sets the number of days needed to reach 50\% of the difference between the baseline and maximal elevation values. In the current example, the baseline-maximal elevation difference is 0.32 ($\upalpha - \uptheta$ = 3.32 - 3.00 = 0.32), and so the days-to-halfway elevation parameter defines the number of days needed to reach a value of 3.16. Given that the days-to-halfway elevation parameter is set to 180 in the current example ($\upbeta = 180.00$), then 180 days are needed to go from a value of 3.00 to a value of 3.16. Panel D: The triquarter-halfway delta parameter ($\upgamma$) sets the number of days needed to go from halfway elevation to approximately 73\% of the baseline-maximal elevation difference of 0.32 ($\upalpha - \uptheta$ = 3.32 - 3.00 = 0.32). Given that 73\% of the baseline-maximal elevation difference is 0.23 and the triquarter-halfway delta is set to 20 days ($\upgamma = 20.00$), then 20 days are needed to go from the halfway point of 3.16 to the triquarter point of approximately 3.23).}
-\end{apaFigure}
-```
-
-\noindent Applying the parameter meanings of the logistic function to the parameter values estimated by using the logistic function (Equation \ref{eq:logistic1}), the predicted response pattern begins at a value of `r sprintf("%.2f", round(3, 3))` (baseline) and reaches a value of `r alpha` (maximal elevation) by the end of the 360-day period. The midway point of the curve is reached after `r sprintf("%.2f", round(180, 3))` days (days-to-halfway elevation) and the satiation point is reached `r sprintf("%.2f", round(20, 3))` days later (triquarter-halfway delta; or `r sprintf("%.2f", round(200, 3))` days after the beginning of the incentive system is introduced). When looking at the polynomial function, it is almost impossible to meaningfully interpret the values of any of the other parameter values (aside from the '$a$' parameter, which indicates the starting value). Therefore, using a nonlinear function such as the logistic function provides a meaningful way to interpret nonlinear change.
-
-## Multilevel and Latent Variable Approach 
-
-In addition to using the logistic function to model nonlinear change, another modelling decision concerns whether to do so using the multilevel or latent growth curve framework. In my dissertation, I opted for the latent growth curve framework for two reasons. First, the latent growth curve framework allows data to be more realistically modelled than the multilevel framework. As some examples, the latent growth curve framework allows the modelling of measurement error, complex error structures, and time-varying covariates [for a review, see @mcneish2018]. Second, and perhaps more important, the likelihood of convergence with multilevel models decreases as the number of random-effect parameters increases due to nonpositive definitive covariance matrices [for a review, see @mcneish2020]. With the model I used in my simulation experiments having four random-effect parameters, it is likely that my simulation experiments would have considerable convergence issues if they use the multilevel framework. Therefore, given the convergence issues of multilevel models and the shortcoming realistically modelling data, I decided, on balance, that the strengths of the multilevel framework (e.g., more options for modelling small samples) were outweighed by its shortcomings, and decided to use a latent growth curve framework in my simulation experiments.
-
-
-### Next Steps
-
-Given that longitudinal research is needed to understand the temporal dynamics of psychological processes, it is necessary to understand how longitudinal design and analysis factors interact with each other (and with sample size) in affecting the performance of nonlinear longitudinal models. With no study to my knowledge having conducted a comprehensive investigation into how longitudinal design and analysis factors affect the modelling of nonlinear change patterns, my simulation experiments are designed to address these gaps in the literature. Specifically, my simulation experiments investigate how measurement number, measurement spacing, and time structuredness affect the performance of a longitudinal model of nonlinear change (see Cells 1, 5, 9, and 10 of Table \ref{tab:systematicReviewCount}/Table \ref{tab:systematicReview}). 
-
-
-
-## Overview of Simulation Experiments 
-
-To investigate the effects of longitudinal design and analysis factors on model performance, I conducted three Monte Carlo experiments. Before summarizing the simulation experiments, one point needs to be mentioned regarding the maximum number of independent variables used in each experiment. No simulation experiment manipulated more than three variables because of the difficulty associated with interpreting interactions between four or more variables. Even among academics, the ability to correctly interpret interactions sharply declines when the number of independent variables increases from three to four [@halford2005]. Therefore, none of my simulation experiments manipulated more than three variables so that results could be readily interpreted. 
-
-To summarize the three simulation experiments, the independent variables of each simulation experiment are listed below: 
-
-* Experiment 1: number of measurements, spacing of measurements, and nature of change. 
-* Experiment 2: number of measurements, spacing of measurements, and sample size. 
-* Experiment 3: number of measurements, sample size, and time structuredness. 
-
-\noindent The sections that follow will present each of the simulation experiments and their corresponding results. 
-

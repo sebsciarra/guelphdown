@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 # guelphdown <img src="man/figures/guelphdown_hex.png" align="right" width=200 />
 
-This project was inspired by the [thesisdown](#https://github.com/ismayc/thesisdown/tree/master) package for writing theses in RStudio and has been created to write theses for the University of Guelph. LaTeX code has been written in the `guelphthesis.cls` and `template.tex` files to format the generated thesis according to the University of Guelph [formatting requirements](https://graduatestudies.uoguelph.ca/current-students/preparation-your-thesis). I wrote my thesis using `guelphdown`, which can be viewed [here](https://atrium.lib.uoguelph.ca/xmlui/bitstream/handle/10214/27543/Sciarra_Sebastian_%20202304_PhD.pdf?sequence=1&isAllowed=y). Note that `guelphdown` only produces PDF versions of theses. In the sections that follow, I will explain the following four components to using `guelphdown`: 
+This project was inspired by the [thesisdown](#https://github.com/ismayc/thesisdown/tree/master) package for writing theses in RStudio and has been created to write theses for the University of Guelph. LaTeX code has been written in the `guelphthesis.cls` and `template.tex` files to format the generated thesis according to the University of Guelph [formatting requirements](https://graduatestudies.uoguelph.ca/current-students/preparation-your-thesis). I wrote my thesis using `guelphdown`, which can be viewed [here](https://atrium.lib.uoguelph.ca/xmlui/bitstream/handle/10214/27543/Sciarra_Sebastian_%20202304_PhD.pdf?sequence=1&isAllowed=y). Note that `guelphdown` only produces PDF versions of theses. In the sections that follow, I will explain the following five components to using `guelphdown`: 
 
 1) Installation 
 2) Project creation

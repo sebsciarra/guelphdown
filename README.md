@@ -13,7 +13,7 @@ requirements](https://graduatestudies.uoguelph.ca/current-students/preparation-y
 I wrote my thesis using `guelphdown`, which can be viewed
 [here](https://atrium.lib.uoguelph.ca/xmlui/bitstream/handle/10214/27543/Sciarra_Sebastian_%20202304_PhD.pdf?sequence=1&isAllowed=y).
 Note that `guelphdown` only produces PDF versions of theses. In the
-sections that follow, I will explain the following four components to
+sections that follow, I will explain the following five components to
 using `guelphdown`:
 
 1)  Installation
